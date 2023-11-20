@@ -38,10 +38,8 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf byteBuf = (ByteBuf)msg;
-        byte[] bytes = new byte[byteBuf.readableBytes()];
-        byteBuf.readBytes(byteBuf);
-        String str = new String(bytes);
+
+        String str =(String) msg;
         log.info("receive msg: {}", str);
 
         NettyChannelManager instance = NettyChannelManager.getInstance();
@@ -77,6 +75,6 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+        log.error("exception caught ", cause);
     }
 }

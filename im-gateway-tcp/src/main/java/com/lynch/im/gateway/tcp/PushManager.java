@@ -24,19 +24,20 @@ public class PushManager {
         public void run() {
             while (true) {
                 try {
-                    Thread.sleep(30 * 1000);
                     String userId = "test001";
-
+                    Thread.sleep(10 * 1000);
                     NettyChannelManager instance = NettyChannelManager.getInstance();
                     SocketChannel channel = instance.getChannel(userId);
-                    if(channel!=null) {
-                        byte[] res = "push one msg".getBytes();
+                    if (channel != null) {
+                        byte[] res = ("push one msg from " + userId + "$_").getBytes();
                         ByteBuf buffer = Unpooled.buffer(res.length);
                         buffer.writeBytes(res);
                         channel.writeAndFlush(buffer);
-                    }else{
+                        log.info("push msg to client success: {}", userId);
+                    } else {
                         log.info("user id [{}] be off line", userId);
                     }
+                    Thread.sleep(10 * 1000);
                 } catch (Exception ex) {
                     log.error("push manager occur error", ex);
                 }

@@ -18,10 +18,10 @@ public class IMClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf byteBuf = (ByteBuf)msg;
-        byte[] bytes = new byte[byteBuf.readableBytes()];
-        byteBuf.readBytes(byteBuf);
-        String str = new String(bytes);
+        String str = (String)msg;
+//        byte[] bytes = new byte[byteBuf.readableBytes()];
+//        byteBuf.readBytes(byteBuf);
+//        String str = new String(bytes);
         log.info("receive msg from gateway server: {}", str);
 
     }

@@ -8,7 +8,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author leo
@@ -18,11 +22,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class IMClient {
-    private static final int PORT = 8080;
 
     private SocketChannel socketChannel;
     private Bootstrap client;
     private EventLoopGroup threadGroup;
+    private CountDownLatch latch = new CountDownLatch(1);
 
     public void connect(String host, int port){
         try {
@@ -34,11 +38,14 @@ public class IMClient {
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            ByteBuf delimiter = Unpooled.copiedBuffer("$_".getBytes());
+                            socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, delimiter));
+                            socketChannel.pipeline().addLast(new StringDecoder());
                             socketChannel.pipeline().addLast(new IMClientHandler());
                         }
                     });
             log.info("The IM client configuration is complete");
-            ChannelFuture channelFuture = client.connect(host, PORT).sync();
+            ChannelFuture channelFuture = client.connect(host, port);
 
             log.info("start connect to the gateway server.");
             channelFuture.addListener(new ChannelFutureListener() {
@@ -46,16 +53,23 @@ public class IMClient {
                     if(channelFuture.isSuccess()){
                         log.info("IM connection complete: {}", channelFuture.channel().remoteAddress());
                         socketChannel = (SocketChannel) channelFuture.channel();
+                        latch.countDown();
                     }else{
+                        log.error("IM connection occur error: {}", channelFuture.channel().remoteAddress());
                         channelFuture.channel().closeFuture();
                         threadGroup.shutdownGracefully();
                     }
                 }
             });
-            channelFuture.channel().closeFuture().sync();
+            channelFuture.sync();
+            latch.await();
         }catch (Exception ex){
             log.error("start im client occur error", ex);
         }
+    }
+
+    private boolean isConnected(){
+        return socketChannel != null && socketChannel.isOpen();
     }
 
     public void authenticate(String userId, String token) {
@@ -68,8 +82,12 @@ public class IMClient {
         sendInternal(msg + "|" + userId);
     }
 
-    private void sendInternal(String message){
-        byte[] bytes = message.getBytes();
+    private void sendInternal(String message) {
+        if(!isConnected()){
+            log.error("Cannot authorize, because connection incomplete or is closed.");
+            return;
+        }
+        byte[] bytes = (message + "$_").getBytes();
         ByteBuf buffer = Unpooled.buffer(bytes.length);
         buffer.writeBytes(bytes);
         socketChannel.writeAndFlush(buffer);
