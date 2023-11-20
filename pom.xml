@@ -11,10 +11,10 @@
     <modules>
         <module>im-gateway-tcp</module>
         <module>im-sdk-android</module>
+        <module>im-dispatcher</module>
     </modules>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

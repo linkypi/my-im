@@ -2,7 +2,6 @@ package com.lynch.im.gateway.tcp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
@@ -26,8 +25,8 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
-        NettyChannelManager instance = NettyChannelManager.getInstance();
-        instance.remove(channel);
+        ClientManager instance = ClientManager.getInstance();
+        instance.removeClient(channel);
         log.info("client disconnected: {}", ctx.channel().remoteAddress());
     }
 
@@ -42,7 +41,7 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
         String str =(String) msg;
         log.info("receive msg: {}", str);
 
-        NettyChannelManager instance = NettyChannelManager.getInstance();
+        ClientManager instance = ClientManager.getInstance();
         String userId = str.split("\\|")[1];
 
         // 处理认证请求
@@ -50,7 +49,7 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
 
             String token = str.split("\\|")[2];
 
-            instance.addChannel(userId, (SocketChannel) ctx.channel());
+            instance.addClient(userId, (SocketChannel) ctx.channel());
             //检验 token 是否合法
 
             // 校验通过后缓存当前用户信息
@@ -59,7 +58,7 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
         }
 
         // 若相关用户连接不存在 则提示错误
-        if(!instance.existChannel(userId)){
+        if(!instance.isClientConnected(userId)){
             log.info("user id: {} unauthorized", userId);
             byte[] res = "unauthorized".getBytes();
             ByteBuf buffer = Unpooled.buffer(res.length);

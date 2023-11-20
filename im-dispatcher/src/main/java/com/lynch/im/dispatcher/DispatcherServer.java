@@ -1,7 +1,6 @@
-package com.lynch.im.gateway.tcp;
+package com.lynch.im.dispatcher;
 
-import com.lynch.im.gateway.tcp.dispatcher.DispatcherInstanceManager;
-import com.lynch.im.gateway.tcp.push.PushManager;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,29 +15,20 @@ import io.netty.handler.codec.string.StringDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author leo
- * @ClassName GatewayTcpServer
- * @description: TODO
- * @date 11/20/23 3:04 PM
+ * @author: lynch
+ * @description:
+ * @date: 2023/11/20 22:02
  */
 @Slf4j
-public class GatewayTcpServer {
+public class DispatcherServer {
 
-    private static final int PORT = 8080;
+    private static final int PORT = 8090;
     public static void main(String[] args) {
-
-        // 启动消息推送组件
-        new PushManager().start();
-
-        // 启动分发系统实例管理组件
-        DispatcherInstanceManager dispatcherInstanceManager = new DispatcherInstanceManager();
-        dispatcherInstanceManager.init();
-
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         EventLoopGroup ioEventLoopGroup = new NioEventLoopGroup();
 
         try {
-            log.info("start gateway server ... ");
+            log.info("start dispatcher server ... ");
             ServerBootstrap server = new ServerBootstrap();
             server.group(eventLoopGroup, ioEventLoopGroup)
                     .channel(NioServerSocketChannel.class)
@@ -47,16 +37,17 @@ public class GatewayTcpServer {
                             ByteBuf delimiter = Unpooled.copiedBuffer("$_".getBytes());
                             socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, delimiter));
                             socketChannel.pipeline().addLast(new StringDecoder());
-                            socketChannel.pipeline().addLast(new GatewayTcpHandler());
+                            socketChannel.pipeline().addLast(new DispatcherHandler());
                         }
                     });
             ChannelFuture channelFuture = server.bind(PORT).sync();
-                channelFuture.channel().closeFuture().sync();
+            channelFuture.channel().closeFuture().sync();
         }catch (Exception ex){
-            log.error("start gateway server occur error", ex);
+            log.error("start dispatcher server occur error", ex);
         }finally {
             eventLoopGroup.shutdownGracefully();
             ioEventLoopGroup.shutdownGracefully();
         }
     }
+
 }
