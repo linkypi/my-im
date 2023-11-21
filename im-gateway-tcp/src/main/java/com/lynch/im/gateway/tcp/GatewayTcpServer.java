@@ -12,8 +12,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.lynch.im.common.Constant.DELIMITER;
 
 /**
  * @author leo
@@ -25,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 public class GatewayTcpServer {
 
     private static final int PORT = 8080;
-    private static final byte[] DELIMITER = "$_".getBytes();
 
     public static void main(String[] args) {
 

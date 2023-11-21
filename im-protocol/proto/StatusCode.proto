@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.lynch.im.protocol";
+option java_outer_classname = "StatusCodeEnum";
+
+enum StatusCode {
+    SUCCESS = 0;
+    UNAUTHORIZED = 1;
+}
+

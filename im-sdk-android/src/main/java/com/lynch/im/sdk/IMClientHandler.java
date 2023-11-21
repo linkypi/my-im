@@ -1,10 +1,12 @@
 package com.lynch.im.sdk;
 
+import com.alibaba.fastjson.JSON;
+import com.lynch.im.common.Response;
+import com.lynch.im.protocol.AuthenticateResponseProto.*;
+import com.lynch.im.protocol.RequestTypeProto.*;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.concurrent.EventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,12 +21,14 @@ public class IMClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buffer = (ByteBuf)msg;
+        Response response = new Response(buffer);
 
-        String str = (String)msg;
-//        byte[] bytes = new byte[byteBuf.readableBytes()];
-//        byteBuf.readBytes(byteBuf);
-//        String str = new String(bytes);
-        log.info("receive msg from gateway server: {}", str);
+        log.info("receive msg from gateway server: {}", JSON.toJSONString(response));
+
+        if(RequestType.AUTHENTICATE_VALUE == response.getRequestType()){
+            AuthenticateResponse authenticateResponse = AuthenticateResponse.parseFrom(response.getBody());
+            log.info("authenticate response: {}", JSON.toJSONString(authenticateResponse));
+        }
 
     }
 

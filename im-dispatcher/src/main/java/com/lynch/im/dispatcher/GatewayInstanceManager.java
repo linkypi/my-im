@@ -28,8 +28,6 @@ public class GatewayInstanceManager {
     }
 
     public void removeInstance(String channelId){
-        if(gatewayInstances.containsKey(channelId)){
-            gatewayInstances.remove(channelId);
-        }
+        gatewayInstances.remove(channelId);
     }
 }

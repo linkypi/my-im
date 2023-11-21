@@ -1,7 +1,7 @@
 package com.lynch.im.gateway.tcp;
 
-import com.lynch.im.protocol.AuthenticateRequestProto.*;
-import com.lynch.im.protocol.AuthenticateResponseProto.*;
+import com.lynch.im.common.Request;
+import com.lynch.im.protocol.AuthenticateRequestProto;
 import com.lynch.im.protocol.RequestTypeProto.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -28,8 +28,8 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
-        ClientManager instance = ClientManager.getInstance();
-        instance.removeClient(channel);
+        SessionManager instance = SessionManager.getInstance();
+        instance.removeSession(channel);
         log.info("client disconnected: {}", ctx.channel().remoteAddress());
     }
 
@@ -47,20 +47,20 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
 
         RequestHandler requestHandler = RequestHandler.getInstance();
 
-        if( RequestType.AUTHENTICATE_VALUE == request.getRequestType()){
-            AuthenticateRequest authenticateRequest = AuthenticateRequest.parseFrom(request.getBody());
-            AuthenticateResponse authenticateResponse = requestHandler.authenticate(authenticateRequest);
-            Response response = new Response(request, authenticateResponse.toByteArray());
-            ctx.writeAndFlush(response.getBuffer());
+        if(RequestType.AUTHENTICATE_VALUE == request.getRequestType()){
+
+            requestHandler.authenticate(request);
+            // 记录用户会话，以便在请求异步返回后可以使用该会话对请求进行回复
+            AuthenticateRequestProto.AuthenticateRequest authenticateRequest = AuthenticateRequestProto.AuthenticateRequest.parseFrom(request.getBody());
+            SessionManager instance = SessionManager.getInstance();
+            instance.addSession(authenticateRequest.getUid(), (SocketChannel) ctx.channel());
             return;
         }
-
-
 
         String str =(String) msg;
 
 
-        ClientManager instance = ClientManager.getInstance();
+        SessionManager instance = SessionManager.getInstance();
         String userId = str.split("\\|")[1];
 
         // 处理认证请求
@@ -68,7 +68,7 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
 
             String token = str.split("\\|")[2];
 
-            instance.addClient(userId, (SocketChannel) ctx.channel());
+            instance.addSession(userId, (SocketChannel) ctx.channel());
             //检验 token 是否合法
 
             // 校验通过后缓存当前用户信息
@@ -77,12 +77,12 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
         }
 
         // 若相关用户连接不存在 则提示错误
-        if(!instance.isClientConnected(userId)){
+        if(!instance.isConnected(userId)){
             log.info("user id: {} unauthorized", userId);
             byte[] res = "unauthorized".getBytes();
-            ByteBuf buffer = Unpooled.buffer(res.length);
-            buffer.writeBytes(res);
-            ctx.writeAndFlush(buffer);
+            ByteBuf buffer2 = Unpooled.buffer(res.length);
+            buffer2.writeBytes(res);
+            ctx.writeAndFlush(buffer2);
             return;
         }
 

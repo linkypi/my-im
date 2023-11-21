@@ -12,12 +12,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.lynch.im.common.Constant.DELIMITER;
 
 /**
  * 分发系统管理组件
@@ -43,10 +45,15 @@ public class DispatcherInstanceManager {
         dispatcherInstanceAddresses.add(new DispatcherInstanceAddress("localhost","127.0.0.1", 8090));
     }
 
+    private static final Random random = new Random();;
+    public DispatcherInstance chooseDispatcherInstance(){
+        int index = random.nextInt(dispatcherInstances.size());
+        return dispatcherInstances.get(index);
+    }
     /**
      * 分发系统实例地址
      */
-    private static final List<SocketChannel> dispatcherInstances = new CopyOnWriteArrayList<SocketChannel>();
+    private static final List<DispatcherInstance> dispatcherInstances = new CopyOnWriteArrayList<DispatcherInstance>();
 
     public void init(){
         // 主动与一批分发系统实例建立长连接
@@ -54,7 +61,7 @@ public class DispatcherInstanceManager {
             try {
                 connectDispatchInstance(instance);
             }catch (Exception ex){
-                log.error("connect to dispatcher instance occur error", ex);
+                log.error("connect to dispatcher instance occur error, instance: {}", JSON.toJSONString(instance), ex);
             }
         }
     }
@@ -68,10 +75,9 @@ public class DispatcherInstanceManager {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        ByteBuf delimiter = Unpooled.copiedBuffer("$_".getBytes());
-                        socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, delimiter));
-                        socketChannel.pipeline().addLast(new StringDecoder());
-                        socketChannel.pipeline().addLast(new DispatcherClientHandler());
+                        ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
+                        socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
+                        socketChannel.pipeline().addLast(new DispatcherInstanceHandler());
                     }
                 });
         ChannelFuture channelFuture = client.connect(instance.getIp(), instance.getPort());
@@ -81,7 +87,8 @@ public class DispatcherInstanceManager {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if(channelFuture.isSuccess()){
                     log.info("connect dispatcher instance success: {}", JSON.toJSONString(instance));
-                    dispatcherInstances.add((SocketChannel) channelFuture.channel());
+                    DispatcherInstance dispatcherInstance = new DispatcherInstance((SocketChannel) channelFuture.channel());
+                    dispatcherInstances.add(dispatcherInstance);
                 }else{
                     log.error("connect dispatcher instance occur error: {}", JSON.toJSONString(instance));
                     channelFuture.channel().closeFuture();

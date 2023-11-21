@@ -4,14 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>my_im</artifactId>
-        <groupId>org.hiraeth</groupId>
+        <groupId>com.hiraeth</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.hiraeth</groupId>
     <version>1.0-SNAPSHOT</version>
     <artifactId>im-gateway-tcp</artifactId>
-
+    <properties>
+        <java.version>8</java.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
@@ -20,8 +24,8 @@
         </dependency>
         <dependency>
             <groupId>com.hiraeth</groupId>
-            <artifactId>im-protocol</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>im-common</artifactId>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

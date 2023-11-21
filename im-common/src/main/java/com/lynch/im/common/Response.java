@@ -18,7 +18,7 @@ public class Response {
     private int headerLength;
     private int appSDKVersion;
     private int requestType;
-    private int sequence;
+    private long sequence;
     private int bodyLength;
     private byte[] body;
 
@@ -41,9 +41,19 @@ public class Response {
         buffer.writeInt(HEADER_LENGTH);
         buffer.writeInt(APP_SDK_VERSION);
         buffer.writeInt(RequestTypeProto.RequestType.AUTHENTICATE_VALUE);
-        buffer.writeInt(SEQUENCE);
+        buffer.writeLong(SEQUENCE);
         buffer.writeInt(body.length);
         buffer.writeBytes(body);
         buffer.writeBytes(DELIMITER);
+    }
+
+    public Response(ByteBuf buffer){
+        this.headerLength = buffer.readInt();
+        this.appSDKVersion = buffer.readInt();
+        this.requestType = buffer.readInt();
+        this.sequence = buffer.readLong();
+        this.bodyLength = buffer.readInt();
+        this.body = new byte[buffer.readableBytes()];
+        buffer.readBytes(this.body);
     }
 }

@@ -20,54 +20,31 @@ public final class AuthenticateRequestProto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 clientVersion = 1;</code>
-     * @return The clientVersion.
-     */
-    int getClientVersion();
-
-    /**
-     * <code>.im.RequestType requestType = 2;</code>
-     * @return The enum numeric value on the wire for requestType.
-     */
-    int getRequestTypeValue();
-    /**
-     * <code>.im.RequestType requestType = 2;</code>
-     * @return The requestType.
-     */
-    com.lynch.im.protocol.RequestTypeProto.RequestType getRequestType();
-
-    /**
-     * <code>int64 sequence = 3;</code>
-     * @return The sequence.
-     */
-    long getSequence();
-
-    /**
-     * <code>string uid = 4;</code>
+     * <code>string uid = 1;</code>
      * @return The uid.
      */
     java.lang.String getUid();
     /**
-     * <code>string uid = 4;</code>
+     * <code>string uid = 1;</code>
      * @return The bytes for uid.
      */
     com.google.protobuf.ByteString
         getUidBytes();
 
     /**
-     * <code>string token = 5;</code>
+     * <code>string token = 2;</code>
      * @return The token.
      */
     java.lang.String getToken();
     /**
-     * <code>string token = 5;</code>
+     * <code>string token = 2;</code>
      * @return The bytes for token.
      */
     com.google.protobuf.ByteString
         getTokenBytes();
 
     /**
-     * <code>int64 timestamp = 6;</code>
+     * <code>int64 timestamp = 3;</code>
      * @return The timestamp.
      */
     long getTimestamp();
@@ -85,7 +62,6 @@ public final class AuthenticateRequestProto {
       super(builder);
     }
     private AuthenticateRequest() {
-      requestType_ = 0;
       uid_ = "";
       token_ = "";
     }
@@ -110,51 +86,11 @@ public final class AuthenticateRequestProto {
               com.lynch.im.protocol.AuthenticateRequestProto.AuthenticateRequest.class, com.lynch.im.protocol.AuthenticateRequestProto.AuthenticateRequest.Builder.class);
     }
 
-    public static final int CLIENTVERSION_FIELD_NUMBER = 1;
-    private int clientVersion_ = 0;
-    /**
-     * <code>int32 clientVersion = 1;</code>
-     * @return The clientVersion.
-     */
-    @java.lang.Override
-    public int getClientVersion() {
-      return clientVersion_;
-    }
-
-    public static final int REQUESTTYPE_FIELD_NUMBER = 2;
-    private int requestType_ = 0;
-    /**
-     * <code>.im.RequestType requestType = 2;</code>
-     * @return The enum numeric value on the wire for requestType.
-     */
-    @java.lang.Override public int getRequestTypeValue() {
-      return requestType_;
-    }
-    /**
-     * <code>.im.RequestType requestType = 2;</code>
-     * @return The requestType.
-     */
-    @java.lang.Override public com.lynch.im.protocol.RequestTypeProto.RequestType getRequestType() {
-      com.lynch.im.protocol.RequestTypeProto.RequestType result = com.lynch.im.protocol.RequestTypeProto.RequestType.forNumber(requestType_);
-      return result == null ? com.lynch.im.protocol.RequestTypeProto.RequestType.UNRECOGNIZED : result;
-    }
-
-    public static final int SEQUENCE_FIELD_NUMBER = 3;
-    private long sequence_ = 0L;
-    /**
-     * <code>int64 sequence = 3;</code>
-     * @return The sequence.
-     */
-    @java.lang.Override
-    public long getSequence() {
-      return sequence_;
-    }
-
-    public static final int UID_FIELD_NUMBER = 4;
+    public static final int UID_FIELD_NUMBER = 1;
     @SuppressWarnings("serial")
     private volatile java.lang.Object uid_ = "";
     /**
-     * <code>string uid = 4;</code>
+     * <code>string uid = 1;</code>
      * @return The uid.
      */
     @java.lang.Override
@@ -171,7 +107,7 @@ public final class AuthenticateRequestProto {
       }
     }
     /**
-     * <code>string uid = 4;</code>
+     * <code>string uid = 1;</code>
      * @return The bytes for uid.
      */
     @java.lang.Override
@@ -189,11 +125,11 @@ public final class AuthenticateRequestProto {
       }
     }
 
-    public static final int TOKEN_FIELD_NUMBER = 5;
+    public static final int TOKEN_FIELD_NUMBER = 2;
     @SuppressWarnings("serial")
     private volatile java.lang.Object token_ = "";
     /**
-     * <code>string token = 5;</code>
+     * <code>string token = 2;</code>
      * @return The token.
      */
     @java.lang.Override
@@ -210,7 +146,7 @@ public final class AuthenticateRequestProto {
       }
     }
     /**
-     * <code>string token = 5;</code>
+     * <code>string token = 2;</code>
      * @return The bytes for token.
      */
     @java.lang.Override
@@ -228,10 +164,10 @@ public final class AuthenticateRequestProto {
       }
     }
 
-    public static final int TIMESTAMP_FIELD_NUMBER = 6;
+    public static final int TIMESTAMP_FIELD_NUMBER = 3;
     private long timestamp_ = 0L;
     /**
-     * <code>int64 timestamp = 6;</code>
+     * <code>int64 timestamp = 3;</code>
      * @return The timestamp.
      */
     @java.lang.Override
@@ -253,23 +189,14 @@ public final class AuthenticateRequestProto {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (clientVersion_ != 0) {
-        output.writeInt32(1, clientVersion_);
-      }
-      if (requestType_ != com.lynch.im.protocol.RequestTypeProto.RequestType.AUTHENTICATE.getNumber()) {
-        output.writeEnum(2, requestType_);
-      }
-      if (sequence_ != 0L) {
-        output.writeInt64(3, sequence_);
-      }
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uid_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, uid_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uid_);
       }
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(token_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, token_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, token_);
       }
       if (timestamp_ != 0L) {
-        output.writeInt64(6, timestamp_);
+        output.writeInt64(3, timestamp_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -280,27 +207,15 @@ public final class AuthenticateRequestProto {
       if (size != -1) return size;
 
       size = 0;
-      if (clientVersion_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, clientVersion_);
-      }
-      if (requestType_ != com.lynch.im.protocol.RequestTypeProto.RequestType.AUTHENTICATE.getNumber()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, requestType_);
-      }
-      if (sequence_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(3, sequence_);
-      }
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uid_)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, uid_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, uid_);
       }
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(token_)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, token_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, token_);
       }
       if (timestamp_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(6, timestamp_);
+          .computeInt64Size(3, timestamp_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
@@ -317,11 +232,6 @@ public final class AuthenticateRequestProto {
       }
       com.lynch.im.protocol.AuthenticateRequestProto.AuthenticateRequest other = (com.lynch.im.protocol.AuthenticateRequestProto.AuthenticateRequest) obj;
 
-      if (getClientVersion()
-          != other.getClientVersion()) return false;
-      if (requestType_ != other.requestType_) return false;
-      if (getSequence()
-          != other.getSequence()) return false;
       if (!getUid()
           .equals(other.getUid())) return false;
       if (!getToken()
@@ -339,13 +249,6 @@ public final class AuthenticateRequestProto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + CLIENTVERSION_FIELD_NUMBER;
-      hash = (53 * hash) + getClientVersion();
-      hash = (37 * hash) + REQUESTTYPE_FIELD_NUMBER;
-      hash = (53 * hash) + requestType_;
-      hash = (37 * hash) + SEQUENCE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getSequence());
       hash = (37 * hash) + UID_FIELD_NUMBER;
       hash = (53 * hash) + getUid().hashCode();
       hash = (37 * hash) + TOKEN_FIELD_NUMBER;
@@ -484,9 +387,6 @@ public final class AuthenticateRequestProto {
       public Builder clear() {
         super.clear();
         bitField0_ = 0;
-        clientVersion_ = 0;
-        requestType_ = 0;
-        sequence_ = 0L;
         uid_ = "";
         token_ = "";
         timestamp_ = 0L;
@@ -524,21 +424,12 @@ public final class AuthenticateRequestProto {
       private void buildPartial0(com.lynch.im.protocol.AuthenticateRequestProto.AuthenticateRequest result) {
         int from_bitField0_ = bitField0_;
         if (((from_bitField0_ & 0x00000001) != 0)) {
-          result.clientVersion_ = clientVersion_;
-        }
-        if (((from_bitField0_ & 0x00000002) != 0)) {
-          result.requestType_ = requestType_;
-        }
-        if (((from_bitField0_ & 0x00000004) != 0)) {
-          result.sequence_ = sequence_;
-        }
-        if (((from_bitField0_ & 0x00000008) != 0)) {
           result.uid_ = uid_;
         }
-        if (((from_bitField0_ & 0x00000010) != 0)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
           result.token_ = token_;
         }
-        if (((from_bitField0_ & 0x00000020) != 0)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
           result.timestamp_ = timestamp_;
         }
       }
@@ -587,23 +478,14 @@ public final class AuthenticateRequestProto {
 
       public Builder mergeFrom(com.lynch.im.protocol.AuthenticateRequestProto.AuthenticateRequest other) {
         if (other == com.lynch.im.protocol.AuthenticateRequestProto.AuthenticateRequest.getDefaultInstance()) return this;
-        if (other.getClientVersion() != 0) {
-          setClientVersion(other.getClientVersion());
-        }
-        if (other.requestType_ != 0) {
-          setRequestTypeValue(other.getRequestTypeValue());
-        }
-        if (other.getSequence() != 0L) {
-          setSequence(other.getSequence());
-        }
         if (!other.getUid().isEmpty()) {
           uid_ = other.uid_;
-          bitField0_ |= 0x00000008;
+          bitField0_ |= 0x00000001;
           onChanged();
         }
         if (!other.getToken().isEmpty()) {
           token_ = other.token_;
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000002;
           onChanged();
         }
         if (other.getTimestamp() != 0L) {
@@ -635,36 +517,21 @@ public final class AuthenticateRequestProto {
               case 0:
                 done = true;
                 break;
-              case 8: {
-                clientVersion_ = input.readInt32();
+              case 10: {
+                uid_ = input.readStringRequireUtf8();
                 bitField0_ |= 0x00000001;
                 break;
-              } // case 8
-              case 16: {
-                requestType_ = input.readEnum();
+              } // case 10
+              case 18: {
+                token_ = input.readStringRequireUtf8();
                 bitField0_ |= 0x00000002;
                 break;
-              } // case 16
+              } // case 18
               case 24: {
-                sequence_ = input.readInt64();
+                timestamp_ = input.readInt64();
                 bitField0_ |= 0x00000004;
                 break;
               } // case 24
-              case 34: {
-                uid_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000008;
-                break;
-              } // case 34
-              case 42: {
-                token_ = input.readStringRequireUtf8();
-                bitField0_ |= 0x00000010;
-                break;
-              } // case 42
-              case 48: {
-                timestamp_ = input.readInt64();
-                bitField0_ |= 0x00000020;
-                break;
-              } // case 48
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -682,126 +549,9 @@ public final class AuthenticateRequestProto {
       }
       private int bitField0_;
 
-      private int clientVersion_ ;
-      /**
-       * <code>int32 clientVersion = 1;</code>
-       * @return The clientVersion.
-       */
-      @java.lang.Override
-      public int getClientVersion() {
-        return clientVersion_;
-      }
-      /**
-       * <code>int32 clientVersion = 1;</code>
-       * @param value The clientVersion to set.
-       * @return This builder for chaining.
-       */
-      public Builder setClientVersion(int value) {
-
-        clientVersion_ = value;
-        bitField0_ |= 0x00000001;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>int32 clientVersion = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearClientVersion() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        clientVersion_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private int requestType_ = 0;
-      /**
-       * <code>.im.RequestType requestType = 2;</code>
-       * @return The enum numeric value on the wire for requestType.
-       */
-      @java.lang.Override public int getRequestTypeValue() {
-        return requestType_;
-      }
-      /**
-       * <code>.im.RequestType requestType = 2;</code>
-       * @param value The enum numeric value on the wire for requestType to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRequestTypeValue(int value) {
-        requestType_ = value;
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.im.RequestType requestType = 2;</code>
-       * @return The requestType.
-       */
-      @java.lang.Override
-      public com.lynch.im.protocol.RequestTypeProto.RequestType getRequestType() {
-        com.lynch.im.protocol.RequestTypeProto.RequestType result = com.lynch.im.protocol.RequestTypeProto.RequestType.forNumber(requestType_);
-        return result == null ? com.lynch.im.protocol.RequestTypeProto.RequestType.UNRECOGNIZED : result;
-      }
-      /**
-       * <code>.im.RequestType requestType = 2;</code>
-       * @param value The requestType to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRequestType(com.lynch.im.protocol.RequestTypeProto.RequestType value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000002;
-        requestType_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.im.RequestType requestType = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRequestType() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        requestType_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private long sequence_ ;
-      /**
-       * <code>int64 sequence = 3;</code>
-       * @return The sequence.
-       */
-      @java.lang.Override
-      public long getSequence() {
-        return sequence_;
-      }
-      /**
-       * <code>int64 sequence = 3;</code>
-       * @param value The sequence to set.
-       * @return This builder for chaining.
-       */
-      public Builder setSequence(long value) {
-
-        sequence_ = value;
-        bitField0_ |= 0x00000004;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>int64 sequence = 3;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearSequence() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        sequence_ = 0L;
-        onChanged();
-        return this;
-      }
-
       private java.lang.Object uid_ = "";
       /**
-       * <code>string uid = 4;</code>
+       * <code>string uid = 1;</code>
        * @return The uid.
        */
       public java.lang.String getUid() {
@@ -817,7 +567,7 @@ public final class AuthenticateRequestProto {
         }
       }
       /**
-       * <code>string uid = 4;</code>
+       * <code>string uid = 1;</code>
        * @return The bytes for uid.
        */
       public com.google.protobuf.ByteString
@@ -834,7 +584,7 @@ public final class AuthenticateRequestProto {
         }
       }
       /**
-       * <code>string uid = 4;</code>
+       * <code>string uid = 1;</code>
        * @param value The uid to set.
        * @return This builder for chaining.
        */
@@ -842,22 +592,22 @@ public final class AuthenticateRequestProto {
           java.lang.String value) {
         if (value == null) { throw new NullPointerException(); }
         uid_ = value;
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
       /**
-       * <code>string uid = 4;</code>
+       * <code>string uid = 1;</code>
        * @return This builder for chaining.
        */
       public Builder clearUid() {
         uid_ = getDefaultInstance().getUid();
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
       /**
-       * <code>string uid = 4;</code>
+       * <code>string uid = 1;</code>
        * @param value The bytes for uid to set.
        * @return This builder for chaining.
        */
@@ -866,14 +616,14 @@ public final class AuthenticateRequestProto {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
         uid_ = value;
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
 
       private java.lang.Object token_ = "";
       /**
-       * <code>string token = 5;</code>
+       * <code>string token = 2;</code>
        * @return The token.
        */
       public java.lang.String getToken() {
@@ -889,7 +639,7 @@ public final class AuthenticateRequestProto {
         }
       }
       /**
-       * <code>string token = 5;</code>
+       * <code>string token = 2;</code>
        * @return The bytes for token.
        */
       public com.google.protobuf.ByteString
@@ -906,7 +656,7 @@ public final class AuthenticateRequestProto {
         }
       }
       /**
-       * <code>string token = 5;</code>
+       * <code>string token = 2;</code>
        * @param value The token to set.
        * @return This builder for chaining.
        */
@@ -914,22 +664,22 @@ public final class AuthenticateRequestProto {
           java.lang.String value) {
         if (value == null) { throw new NullPointerException(); }
         token_ = value;
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000002;
         onChanged();
         return this;
       }
       /**
-       * <code>string token = 5;</code>
+       * <code>string token = 2;</code>
        * @return This builder for chaining.
        */
       public Builder clearToken() {
         token_ = getDefaultInstance().getToken();
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
       }
       /**
-       * <code>string token = 5;</code>
+       * <code>string token = 2;</code>
        * @param value The bytes for token to set.
        * @return This builder for chaining.
        */
@@ -938,14 +688,14 @@ public final class AuthenticateRequestProto {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
         token_ = value;
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000002;
         onChanged();
         return this;
       }
 
       private long timestamp_ ;
       /**
-       * <code>int64 timestamp = 6;</code>
+       * <code>int64 timestamp = 3;</code>
        * @return The timestamp.
        */
       @java.lang.Override
@@ -953,23 +703,23 @@ public final class AuthenticateRequestProto {
         return timestamp_;
       }
       /**
-       * <code>int64 timestamp = 6;</code>
+       * <code>int64 timestamp = 3;</code>
        * @param value The timestamp to set.
        * @return This builder for chaining.
        */
       public Builder setTimestamp(long value) {
 
         timestamp_ = value;
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000004;
         onChanged();
         return this;
       }
       /**
-       * <code>int64 timestamp = 6;</code>
+       * <code>int64 timestamp = 3;</code>
        * @return This builder for chaining.
        */
       public Builder clearTimestamp() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000004);
         timestamp_ = 0L;
         onChanged();
         return this;
@@ -1052,26 +802,21 @@ public final class AuthenticateRequestProto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\031AuthenticateRequest.proto\022\002im\032\021Request" +
-      "Type.proto\"\223\001\n\023AuthenticateRequest\022\025\n\rcl" +
-      "ientVersion\030\001 \001(\005\022$\n\013requestType\030\002 \001(\0162\017" +
-      ".im.RequestType\022\020\n\010sequence\030\003 \001(\003\022\013\n\003uid" +
-      "\030\004 \001(\t\022\r\n\005token\030\005 \001(\t\022\021\n\ttimestamp\030\006 \001(\003" +
-      "B1\n\025com.lynch.im.protocolB\030AuthenticateR" +
-      "equestProtoP\000b\006proto3"
+      "\n\031AuthenticateRequest.proto\022\002im\"D\n\023Authe" +
+      "nticateRequest\022\013\n\003uid\030\001 \001(\t\022\r\n\005token\030\002 \001" +
+      "(\t\022\021\n\ttimestamp\030\003 \001(\003B1\n\025com.lynch.im.pr" +
+      "otocolB\030AuthenticateRequestProtob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          com.lynch.im.protocol.RequestTypeProto.getDescriptor(),
         });
     internal_static_im_AuthenticateRequest_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_im_AuthenticateRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_im_AuthenticateRequest_descriptor,
-        new java.lang.String[] { "ClientVersion", "RequestType", "Sequence", "Uid", "Token", "Timestamp", });
-    com.lynch.im.protocol.RequestTypeProto.getDescriptor();
+        new java.lang.String[] { "Uid", "Token", "Timestamp", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -4,13 +4,8 @@ package im;
 option java_package = "com.lynch.im.protocol";
 option java_outer_classname = "AuthenticateRequestProto";
 
-import public "RequestType.proto";
-
 message AuthenticateRequest{
-    int32 clientVersion = 1;
-    RequestType requestType = 2;
-    int64 sequence = 3;
-    string uid = 4;
-    string token = 5;
-    int64 timestamp = 6;
+    string uid = 1;
+    string token = 2;
+    int64 timestamp = 3;
 }
