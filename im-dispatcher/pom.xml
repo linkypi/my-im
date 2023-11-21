@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>my_im</artifactId>
-        <groupId>org.example</groupId>
+        <groupId>org.hiraeth</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <groupId>com.lynch</groupId>
+    <groupId>com.hiraeth</groupId>
     <artifactId>im-dispatcher</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
 
     <name>im-dispatcher</name>
     <description>im-dispatcher</description>

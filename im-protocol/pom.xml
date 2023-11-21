@@ -8,21 +8,18 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>im-protocol</artifactId>
     <groupId>com.hiraeth</groupId>
     <version>1.0-SNAPSHOT</version>
-    <artifactId>im-gateway-tcp</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.100.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hiraeth</groupId>
-            <artifactId>im-protocol</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.25.0</version>
         </dependency>
     </dependencies>
+
 
 </project>

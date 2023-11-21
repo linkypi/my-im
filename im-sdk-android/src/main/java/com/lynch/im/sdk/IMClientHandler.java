@@ -18,6 +18,8 @@ public class IMClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        ByteBuf buffer = (ByteBuf)msg;
+
         String str = (String)msg;
 //        byte[] bytes = new byte[byteBuf.readableBytes()];
 //        byteBuf.readBytes(byteBuf);

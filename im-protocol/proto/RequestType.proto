@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.lynch.im.protocol";
+option java_outer_classname = "RequestTypeProto";
+
+enum RequestType {
+    AUTHENTICATE = 0;
+    SEND_MESSAGE = 1;
+}
+

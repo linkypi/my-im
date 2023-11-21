@@ -1,5 +1,7 @@
 package com.lynch.im.sdk;
 
+import com.lynch.im.protocol.AuthenticateRequestProto;
+import com.lynch.im.protocol.RequestTypeProto;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -23,6 +25,11 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class IMClient {
 
+    private static final int HEADER_LENGTH = 23;
+    private static final int APP_SDK_VERSION = 1;
+    private static final int REQUEST_TYPE_AUTH = 1;
+    private static final int SEQUENCE = 1;
+    private static final byte[] DELIMITER = "$_".getBytes();
     private SocketChannel socketChannel;
     private Bootstrap client;
     private EventLoopGroup threadGroup;
@@ -38,9 +45,8 @@ public class IMClient {
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ByteBuf delimiter = Unpooled.copiedBuffer("$_".getBytes());
-                            socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, delimiter));
-                            socketChannel.pipeline().addLast(new StringDecoder());
+                            ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
+                            socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
                             socketChannel.pipeline().addLast(new IMClientHandler());
                         }
                     });
@@ -74,7 +80,13 @@ public class IMClient {
 
     public void authenticate(String userId, String token) {
         log.info("start authenticate...");
-        sendInternal("auth|" + userId + "|" + token);
+
+        AuthenticateRequestProto.AuthenticateRequest.Builder builder = AuthenticateRequestProto.AuthenticateRequest.newBuilder();
+        builder.setTimestamp(System.currentTimeMillis());
+        builder.setToken(token);
+        builder.setUid(userId);
+        AuthenticateRequestProto.AuthenticateRequest request = builder.build();
+        sendInternal(request.toByteArray());
     }
 
     public void send(String userId, String msg){
@@ -82,14 +94,19 @@ public class IMClient {
         sendInternal(msg + "|" + userId);
     }
 
-    private void sendInternal(String message) {
+    private void sendInternal(byte[] body) {
         if(!isConnected()){
             log.error("Cannot authorize, because connection incomplete or is closed.");
             return;
         }
-        byte[] bytes = (message + "$_").getBytes();
-        ByteBuf buffer = Unpooled.buffer(bytes.length);
-        buffer.writeBytes(bytes);
+        ByteBuf buffer = Unpooled.buffer(HEADER_LENGTH +  body.length + DELIMITER.length);
+        buffer.writeInt(HEADER_LENGTH);
+        buffer.writeInt(APP_SDK_VERSION);
+        buffer.writeInt(RequestTypeProto.RequestType.AUTHENTICATE_VALUE);
+        buffer.writeInt(SEQUENCE);
+        buffer.writeInt(body.length);
+        buffer.writeBytes(body);
+        buffer.writeBytes(DELIMITER);
         socketChannel.writeAndFlush(buffer);
     }
 

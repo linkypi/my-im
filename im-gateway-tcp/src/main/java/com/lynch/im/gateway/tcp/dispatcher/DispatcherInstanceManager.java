@@ -1,5 +1,6 @@
 package com.lynch.im.gateway.tcp.dispatcher;
 
+import com.alibaba.fastjson.JSON;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 分发系统管理组件
@@ -44,11 +46,10 @@ public class DispatcherInstanceManager {
     /**
      * 分发系统实例地址
      */
-    private static final List<SocketChannel> dispatcherInstances = new ArrayList<SocketChannel>();
+    private static final List<SocketChannel> dispatcherInstances = new CopyOnWriteArrayList<SocketChannel>();
 
     public void init(){
-
-        // 主动与一批分发系统建立长连接
+        // 主动与一批分发系统实例建立长连接
         for(DispatcherInstanceAddress instance: dispatcherInstanceAddresses){
             try {
                 connectDispatchInstance(instance);
@@ -58,7 +59,7 @@ public class DispatcherInstanceManager {
         }
     }
 
-    private void connectDispatchInstance(DispatcherInstanceAddress instance) throws InterruptedException {
+    private void connectDispatchInstance(final DispatcherInstanceAddress instance) throws InterruptedException {
         Bootstrap client = new Bootstrap();
         final NioEventLoopGroup threadGroup = new NioEventLoopGroup();
         client.group(threadGroup)
@@ -73,17 +74,16 @@ public class DispatcherInstanceManager {
                         socketChannel.pipeline().addLast(new DispatcherClientHandler());
                     }
                 });
-        log.info("The IM client configuration is complete");
         ChannelFuture channelFuture = client.connect(instance.getIp(), instance.getPort());
 
-        log.info("start connect to the gateway server.");
+        log.info("start connect to the dispatcher instance: {} ...", JSON.toJSONString(instance));
         channelFuture.addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if(channelFuture.isSuccess()){
-                    log.info("IM connection complete: {}", channelFuture.channel().remoteAddress());
+                    log.info("connect dispatcher instance success: {}", JSON.toJSONString(instance));
                     dispatcherInstances.add((SocketChannel) channelFuture.channel());
                 }else{
-                    log.error("IM connection occur error: {}", channelFuture.channel().remoteAddress());
+                    log.error("connect dispatcher instance occur error: {}", JSON.toJSONString(instance));
                     channelFuture.channel().closeFuture();
                     threadGroup.shutdownGracefully();
                 }

@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 public class GatewayTcpServer {
 
     private static final int PORT = 8080;
+    private static final byte[] DELIMITER = "$_".getBytes();
+
     public static void main(String[] args) {
 
         // 启动消息推送组件
@@ -44,9 +46,8 @@ public class GatewayTcpServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ByteBuf delimiter = Unpooled.copiedBuffer("$_".getBytes());
-                            socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, delimiter));
-                            socketChannel.pipeline().addLast(new StringDecoder());
+                            ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
+                            socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
                             socketChannel.pipeline().addLast(new GatewayTcpHandler());
                         }
                     });

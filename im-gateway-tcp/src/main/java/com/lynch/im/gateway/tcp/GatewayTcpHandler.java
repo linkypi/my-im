@@ -1,5 +1,8 @@
 package com.lynch.im.gateway.tcp;
 
+import com.lynch.im.protocol.AuthenticateRequestProto.*;
+import com.lynch.im.protocol.AuthenticateResponseProto.*;
+import com.lynch.im.protocol.RequestTypeProto.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,8 +41,24 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
+        ByteBuf buffer = (ByteBuf) msg;
+        Request request = new Request(buffer);
+        log.info("receive msg, len: {}", request.getBodyLength());
+
+        RequestHandler requestHandler = RequestHandler.getInstance();
+
+        if( RequestType.AUTHENTICATE_VALUE == request.getRequestType()){
+            AuthenticateRequest authenticateRequest = AuthenticateRequest.parseFrom(request.getBody());
+            AuthenticateResponse authenticateResponse = requestHandler.authenticate(authenticateRequest);
+            Response response = new Response(request, authenticateResponse.toByteArray());
+            ctx.writeAndFlush(response.getBuffer());
+            return;
+        }
+
+
+
         String str =(String) msg;
-        log.info("receive msg: {}", str);
+
 
         ClientManager instance = ClientManager.getInstance();
         String userId = str.split("\\|")[1];
