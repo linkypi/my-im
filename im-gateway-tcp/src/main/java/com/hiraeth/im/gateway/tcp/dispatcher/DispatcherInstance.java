@@ -28,4 +28,8 @@ public class DispatcherInstance {
     public void authenticate(Request request) {
         this.socketChannel.writeAndFlush(request.getBuffer());
     }
+
+    public void sendMessage(Request request) {
+        this.socketChannel.writeAndFlush(request.getBuffer());
+    }
 }

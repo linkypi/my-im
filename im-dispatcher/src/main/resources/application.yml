@@ -4,3 +4,33 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 12345678
+
+  redis:
+    #数据库索引
+    database: 0
+    host: 'localhost'
+    port: 6379
+    password:
+    #连接超时时间,单位ms
+    timeout: 10000
+    loginTimeout: 86400
+
+    #最大链接数, 默认 50
+    #  maxTotal: 100
+    #  #最大空闲数，数据库连接的最大空闲时间。超过空闲数量，数据库连接将被标记为不可用，然后被释放。设为0表示无限制
+    #  maxIdle: 20
+    #  ##jedis的最大活跃连接数设为0表示无限制
+    #  maxActive: 100
+    #  #最大等待时间：单位ms
+    #  #jedis池没有连接对象返回时，等待可用连接的最大时间，单位毫秒，默认值为-1，表示永不超时。
+    #  #如果超过等待时间，则直接抛出JedisConnectionException
+    #  maxWait: 1000
+
+    jedis:
+      pool:
+        #最大连接数
+        max-active: 500
+        #最大阻塞等待时间(负数表示没限制),单位ms
+        max-wait: 5000
+        #最大空闲
+        max-idle: 8

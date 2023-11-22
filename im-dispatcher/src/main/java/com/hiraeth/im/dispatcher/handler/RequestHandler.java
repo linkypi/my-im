@@ -1,8 +1,12 @@
-package com.hiraeth.im.dispatcher;
+package com.hiraeth.im.dispatcher.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hiraeth.im.cache.IRedisService;
+//import com.hiraeth.im.dispatcher.JedisManager;
+import com.hiraeth.im.protocol.MessageProto;
+import com.hiraeth.im.protocol.MessageResponseProto;
 import com.hiraeth.im.protocol.RequestTypeProto;
 import com.hiraeth.im.common.Request;
 import com.hiraeth.im.common.Response;
@@ -11,6 +15,8 @@ import com.hiraeth.im.protocol.AuthenticateResponseProto.*;
 import com.hiraeth.im.protocol.StatusCodeEnum;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author: lynch
@@ -18,16 +24,20 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2023/11/21 22:10
  */
 @Slf4j
+@Component
 public class RequestHandler {
-    private RequestHandler(){
-    }
-    static class Singleton{
-        static final RequestHandler instance = new RequestHandler();
-    }
+//    private RequestHandler(){
+//    }
+//    static class Singleton{
+//        static final RequestHandler instance = new RequestHandler();
+//    }
+//
+//    public static RequestHandler getInstance(){
+//        return Singleton.instance;
+//    }
 
-    public static RequestHandler getInstance(){
-        return Singleton.instance;
-    }
+    @Autowired
+    private IRedisService redisService;
 
     public void handle(Request request, SocketChannel socketChannel) throws InvalidProtocolBufferException {
         if (RequestTypeProto.RequestType.AUTHENTICATE_VALUE == request.getRequestType()) {
@@ -35,6 +45,24 @@ public class RequestHandler {
             socketChannel.writeAndFlush(response.getBuffer());
             return;
         }
+        if (RequestTypeProto.RequestType.SEND_MESSAGE_VALUE == request.getRequestType()) {
+            Response response = saveMessage(request);
+            socketChannel.writeAndFlush(response.getBuffer());
+            return;
+        }
+        log.warn("unknown request: {}", JSON.toJSONString(request));
+    }
+
+    public Response saveMessage(Request request) throws InvalidProtocolBufferException {
+        MessageProto.Message msg = MessageProto.Message.parseFrom(request.getBody());
+        log.info("get message from gateway server: {}", JSON.toJSONString(msg));
+
+        MessageResponseProto.MessageResponse.Builder builder = MessageResponseProto.MessageResponse.newBuilder();
+        builder.setCode(StatusCodeEnum.StatusCode.SUCCESS);
+        builder.setSuccess(true);
+        builder.setUid(msg.getFromUid());
+        builder.setTimestamp(System.currentTimeMillis());
+        return new Response(request, builder.build().toByteArray());
     }
 
     public Response authenticate(Request request, SocketChannel channel) throws InvalidProtocolBufferException {
@@ -68,8 +96,7 @@ public class RequestHandler {
                 jsonObject.put("authenticatedTime", System.currentTimeMillis());
                 jsonObject.put("isAuthenticated", true);
                 jsonObject.put("gatewayChannelId", gatewayChannelId);
-                JedisManager jedisManager = JedisManager.getInstance();
-                jedisManager.getJedis().set("sessions:"+ userId, jsonObject.toJSONString());
+                redisService.set("sessions:"+ userId, jsonObject.toJSONString());
 
                 builder.setSuccess(true);
                 builder.setCode(StatusCodeEnum.StatusCode.SUCCESS);

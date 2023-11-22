@@ -1,6 +1,10 @@
 package com.hiraeth.im.gateway.tcp.push;
 
+import com.hiraeth.im.common.Constant;
+import com.hiraeth.im.common.Request;
 import com.hiraeth.im.gateway.tcp.SessionManager;
+import com.hiraeth.im.protocol.MessageProto;
+import com.hiraeth.im.protocol.RequestTypeProto;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.SocketChannel;
@@ -30,10 +34,15 @@ public class PushManager {
                     SessionManager instance = SessionManager.getInstance();
                     SocketChannel channel = instance.getSession(userId);
                     if (channel != null) {
-                        byte[] res = ("push one msg from " + userId + "$_").getBytes();
-                        ByteBuf buffer = Unpooled.buffer(res.length);
-                        buffer.writeBytes(res);
-                        channel.writeAndFlush(buffer);
+                        String msg = "push one msg from " + userId ;
+                        MessageProto.Message.Builder builder = MessageProto.Message.newBuilder();
+                        builder.setTimestamp(System.currentTimeMillis());
+                        builder.setFromUid(userId);
+                        builder.setText(msg);
+                        Request request = new Request(Constant.APP_SDK_VERSION,
+                                RequestTypeProto.RequestType.SEND_MESSAGE, builder.build().toByteArray());
+
+                        channel.writeAndFlush(request.getBuffer());
                         log.info("push msg to client success: {}", userId);
                     } else {
                         log.info("user id [{}] be off line", userId);

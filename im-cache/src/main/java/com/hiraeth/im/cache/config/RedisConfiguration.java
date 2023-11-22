@@ -51,7 +51,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     @Override
     public CacheManager cacheManager() {
         // 初始化缓存管理器，在这里我们可以缓存的整体过期时间什么的，我这里默认没有配置
-        log.info("初始化 -> [{}]", "CacheManager RedisCacheManager Start");
+        log.info("init -> [{}]", "CacheManager RedisCacheManager Start");
         RedisCacheManager.RedisCacheManagerBuilder builder = RedisCacheManager
                 .RedisCacheManagerBuilder
                 .fromConnectionFactory(jedisConnectionFactory);
@@ -76,7 +76,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     @Bean
     public CacheErrorHandler errorHandler() {
         // 异常处理，当Redis发生异常时，打印日志，但是程序正常走
-        log.info("初始化 -> [{}]", "Redis CacheErrorHandler");
+        log.info("init -> [{}]", "Redis CacheErrorHandler");
         CacheErrorHandler cacheErrorHandler = new CacheErrorHandler() {
             @Override
             public void handleCacheGetError(RuntimeException e, Cache cache, Object key) {

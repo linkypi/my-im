@@ -1,14 +1,18 @@
-package com.hiraeth.im.dispatcher;
+package com.hiraeth.im.dispatcher.handler;
 
+import com.hiraeth.im.dispatcher.GatewayInstanceManager;
+import com.hiraeth.im.dispatcher.handler.RequestHandler;
+import com.hiraeth.im.dispatcher.handler.ResponseHandler;
 import com.hiraeth.im.protocol.MessageTypeEnum;
 import com.hiraeth.im.common.BaseMessage;
-import com.hiraeth.im.common.Request;
-import com.hiraeth.im.common.Response;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author: lynch
@@ -16,7 +20,16 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2023/11/20 22:27
  */
 @Slf4j
+@Component
+@ChannelHandler.Sharable
 public class DispatcherHandler extends ChannelInboundHandlerAdapter {
+
+    @Autowired
+    private RequestHandler requestHandler;
+
+    @Autowired
+    private ResponseHandler responseHandler;
+
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
@@ -40,16 +53,19 @@ public class DispatcherHandler extends ChannelInboundHandlerAdapter {
         ByteBuf buffer = (ByteBuf) msg;
         BaseMessage baseMessage = new BaseMessage(buffer);
 
-        log.info("receive msg, message type: {}, request type: {}, sequence: {}",
-                baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
+        try {
+            log.info("receive msg, message type: {}, request type: {}, sequence: {}",
+                    baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
 
-        if(MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()){
-            RequestHandler instance = RequestHandler.getInstance();
-            instance.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
-        }
-        if(MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()){
-            ResponseHandler instance = ResponseHandler.getInstance();
-            instance.handle(baseMessage.toResponse());
+            if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
+                requestHandler.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
+            }
+            if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
+                responseHandler.handle(baseMessage.toResponse());
+            }
+        } catch (Exception ex) {
+            log.error("handle message occur error, message type: {}, request type: {}, sequence: {}",
+                    baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence(), ex);
         }
     }
 

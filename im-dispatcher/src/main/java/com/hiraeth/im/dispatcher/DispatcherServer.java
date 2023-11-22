@@ -1,6 +1,7 @@
 package com.hiraeth.im.dispatcher;
 
 import com.hiraeth.im.common.Constant;
+import com.hiraeth.im.dispatcher.handler.DispatcherHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author: lynch
@@ -22,7 +25,8 @@ import org.springframework.boot.WebApplicationType;
  * @date: 2023/11/20 22:02
  */
 @Slf4j
-@MapperScan("com.hiraeth.im.dispatcher")
+@SpringBootApplication
+//@MapperScan("com.hiraeth.im.dispatcher")
 public class DispatcherServer {
 
     private static final int PORT = 8090;
@@ -30,7 +34,8 @@ public class DispatcherServer {
 
         SpringApplication springApplication = new SpringApplication();
         springApplication.setWebApplicationType(WebApplicationType.NONE);
-        SpringApplication.run(DispatcherServer.class);
+        ConfigurableApplicationContext context = SpringApplication.run(DispatcherServer.class);
+        DispatcherHandler dispatcherHandler = context.getBeanFactory().getBean(DispatcherHandler.class);
 
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         EventLoopGroup ioEventLoopGroup = new NioEventLoopGroup();
@@ -43,7 +48,7 @@ public class DispatcherServer {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ByteBuf delimiter = Unpooled.copiedBuffer(Constant.DELIMITER);
                             socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
-                            socketChannel.pipeline().addLast(new DispatcherHandler());
+                            socketChannel.pipeline().addLast(dispatcherHandler);
                         }
                     });
             ChannelFuture channelFuture = server.bind(PORT).sync();

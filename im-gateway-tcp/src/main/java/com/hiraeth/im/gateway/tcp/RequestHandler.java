@@ -1,13 +1,16 @@
 package com.hiraeth.im.gateway.tcp;
 
 
+import com.alibaba.fastjson.JSON;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hiraeth.im.protocol.AuthenticateRequestProto;
+import com.hiraeth.im.protocol.MessageProto;
 import com.hiraeth.im.protocol.RequestTypeProto;
 import com.hiraeth.im.common.Request;
 import com.hiraeth.im.gateway.tcp.dispatcher.DispatcherInstance;
 import com.hiraeth.im.gateway.tcp.dispatcher.DispatcherInstanceManager;
 import io.netty.channel.socket.SocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author leo
@@ -15,6 +18,7 @@ import io.netty.channel.socket.SocketChannel;
  * @description: TODO
  * @date 11/21/23 2:07 PM
  */
+@Slf4j
 public class RequestHandler {
     private RequestHandler(){
     }
@@ -39,6 +43,13 @@ public class RequestHandler {
         instance.authenticate(request);
     }
 
+    public void sendMessage(Request request) {
+        // 随机选择一个Dispatcher分发系统地址进行转发
+        DispatcherInstanceManager dispatcherInstanceManager = DispatcherInstanceManager.getInstance();
+        DispatcherInstance instance = dispatcherInstanceManager.chooseDispatcherInstance();
+        instance.sendMessage(request);
+    }
+
     public void handle(Request request, SocketChannel socketChannel) throws InvalidProtocolBufferException {
         if(RequestTypeProto.RequestType.AUTHENTICATE_VALUE == request.getRequestType()){
             authenticate(request);
@@ -48,5 +59,15 @@ public class RequestHandler {
             instance.addSession(authenticateRequest.getUid(), socketChannel);
             return;
         }
+
+        if(RequestTypeProto.RequestType.SEND_MESSAGE_VALUE == request.getRequestType()){
+
+            MessageProto.Message msg = MessageProto.Message.parseFrom(request.getBody());
+            log.info("forward message to dispatcher server: {}", JSON.toJSONString(msg));
+            sendMessage(request);
+            return;
+        }
+
+        log.warn("unknown request: {}", JSON.toJSONString(request));
     }
 }

@@ -1,5 +1,6 @@
 package com.hiraeth.im.cache;
 
+
 import org.springframework.data.redis.connection.MessageListener;
 
 import java.util.List;

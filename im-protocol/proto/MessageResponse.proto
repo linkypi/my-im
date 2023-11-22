@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.hiraeth.im.protocol";
+option java_outer_classname="MessageResponseProto";
+
+import "StatusCode.proto";
+
+message MessageResponse{
+    bool success = 1;
+    StatusCode code = 2;
+    string message = 3;
+
+    string uid = 4;
+    int64 timestamp = 6;
+}

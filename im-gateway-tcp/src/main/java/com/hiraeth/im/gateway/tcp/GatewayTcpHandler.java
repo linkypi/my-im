@@ -40,22 +40,26 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
         ByteBuf buffer = (ByteBuf) msg;
         BaseMessage baseMessage = new BaseMessage(buffer);
 
-        log.info("receive msg, message type: {}, request type: {}, sequence: {}",
-                baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
+        try {
+            log.info("receive msg, message type: {}, request type: {}, sequence: {}",
+                    baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
 
-        if(MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()){
-            RequestHandler instance = RequestHandler.getInstance();
-            instance.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
-            return;
-        }
-        if(MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()){
-            ResponseHandler instance = ResponseHandler.getInstance();
-            instance.handle(baseMessage.toResponse());
-            return;
+            if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
+                RequestHandler instance = RequestHandler.getInstance();
+                instance.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
+                return;
+            }
+            if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
+                ResponseHandler instance = ResponseHandler.getInstance();
+                instance.handle(baseMessage.toResponse());
+                return;
+            }
+        } catch (Exception ex) {
+            log.error("handle message occur error, message type: {}, request type: {}, sequence: {}",
+                    baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence(), ex);
         }
     }
 

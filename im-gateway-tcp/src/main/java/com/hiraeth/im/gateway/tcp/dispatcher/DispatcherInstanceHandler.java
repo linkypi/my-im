@@ -1,12 +1,11 @@
 package com.hiraeth.im.gateway.tcp.dispatcher;
 
 import com.alibaba.fastjson.JSON;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.hiraeth.im.common.BaseMessage;
 import com.hiraeth.im.common.Response;
 import com.hiraeth.im.gateway.tcp.SessionManager;
-import com.hiraeth.im.protocol.AuthenticateResponseProto;
-import com.hiraeth.im.protocol.MessageTypeEnum;
-import com.hiraeth.im.protocol.RequestTypeProto;
+import com.hiraeth.im.protocol.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -42,45 +41,69 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
         ByteBuf buffer = (ByteBuf) msg;
         BaseMessage baseMessage = new BaseMessage(buffer);
 
-        log.info("receive msg, message type: {}, request type: {}, sequence: {}",
-                baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
+        try {
+            log.info("receive msg, message type: {}, request type: {}, sequence: {}",
+                    baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
 
-        if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
+            if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
+                return;
+            }
 
-            return;
-        }
-
-        if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
-            Response response = new Response((ByteBuf) msg);
-            log.info("receive msg from dispatcher server: {}", JSON.toJSONString(response));
-            if (RequestTypeProto.RequestType.AUTHENTICATE_VALUE == response.getRequestType()) {
-                AuthenticateResponseProto.AuthenticateResponse authenticateResponse = AuthenticateResponseProto.AuthenticateResponse.parseFrom(response.getBody());
-
-                // 将响应转发到此前请求过来的 App 会话
-                SessionManager sessionManager = SessionManager.getInstance();
-                SocketChannel session = sessionManager.getSession(authenticateResponse.getUid());
-                session.writeAndFlush(response.getBuffer());
-
-                // 若认证通过则需设置本地session以及Redis中的分布式session
-                if (authenticateResponse.getSuccess()) {
-                    log.info("authenticate success, userId: {}", authenticateResponse.getUid());
-                    SocketChannel channel = (SocketChannel) ctx.channel();
-                    String gatewayChannelId = channel.remoteAddress().getHostName() + ":" + channel.id().asLongText();
-
-                    // 将 session 存储到 Redis 中
-                    // key = uid , value = {
-                    //    'isAuthenticated':true,
-                    //    'token': '...',
-                    //    'timestamp': 'xxx',
-                    //    'authenticatedTime': '...',
-                    //    'gatewayChannelId': 564
-                    //   }
+            if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
+                Response response = baseMessage.toResponse();
+                log.info("receive msg from dispatcher server: {}", JSON.toJSONString(response));
+                if (RequestTypeProto.RequestType.AUTHENTICATE_VALUE == response.getRequestType()) {
+                    forwardAuthRequest(ctx, response);
                     return;
                 }
-                log.info("authenticate failed, response: {}", JSON.toJSONString(authenticateResponse));
+                if (RequestTypeProto.RequestType.SEND_MESSAGE_VALUE == response.getRequestType()) {
+                    forwardSendRequest(ctx, response);
+                    return;
+                }
+                // 将响应返回
+//                ctx.writeAndFlush(response.getBuffer());
             }
-            ctx.writeAndFlush(response.getBuffer());
+        }catch (Exception ex){
+            log.error("handle message occur error, message type: {}, request type: {}, sequence: {}",
+                   baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence(), ex);
         }
+    }
+
+    private void forwardSendRequest(ChannelHandlerContext ctx, Response response) throws InvalidProtocolBufferException{
+        MessageResponseProto.MessageResponse msg = MessageResponseProto.MessageResponse.parseFrom(response.getBody());
+        log.info("forward message to app client: {}", JSON.toJSONString(msg));
+
+        // 将响应转发到此前请求过来的 App 会话
+        SessionManager sessionManager = SessionManager.getInstance();
+        SocketChannel session = sessionManager.getSession(msg.getUid());
+        session.writeAndFlush(response.getBuffer());
+    }
+
+    private void forwardAuthRequest(ChannelHandlerContext ctx, Response response) throws InvalidProtocolBufferException {
+        AuthenticateResponseProto.AuthenticateResponse authenticateResponse = AuthenticateResponseProto.AuthenticateResponse.parseFrom(response.getBody());
+
+        // 将响应转发到此前请求过来的 App 会话
+        SessionManager sessionManager = SessionManager.getInstance();
+        SocketChannel session = sessionManager.getSession(authenticateResponse.getUid());
+        session.writeAndFlush(response.getBuffer());
+
+        // 若认证通过则需设置本地session以及Redis中的分布式session
+        if (authenticateResponse.getSuccess()) {
+            log.info("authenticate success, userId: {}", authenticateResponse.getUid());
+            SocketChannel channel = (SocketChannel) ctx.channel();
+            String gatewayChannelId = channel.remoteAddress().getHostName() + ":" + channel.id().asLongText();
+
+            // 将 session 存储到 Redis 中
+            // key = uid , value = {
+            //    'isAuthenticated':true,
+            //    'token': '...',
+            //    'timestamp': 'xxx',
+            //    'authenticatedTime': '...',
+            //    'gatewayChannelId': 564
+            //   }
+            return;
+        }
+        log.info("authenticate failed, response: {}", JSON.toJSONString(authenticateResponse));
     }
 
     @Override
