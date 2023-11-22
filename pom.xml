@@ -22,6 +22,7 @@
         <module>im-dispatcher</module>
         <module>im-protocol</module>
         <module>im-common</module>
+        <module>im-cache</module>
     </modules>
 
     <dependencies>

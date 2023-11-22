@@ -12,6 +12,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 
 /**
  * @author: lynch
@@ -19,10 +22,16 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2023/11/20 22:02
  */
 @Slf4j
+@MapperScan("com.hiraeth.im.dispatcher")
 public class DispatcherServer {
 
     private static final int PORT = 8090;
     public static void main(String[] args) {
+
+        SpringApplication springApplication = new SpringApplication();
+        springApplication.setWebApplicationType(WebApplicationType.NONE);
+        SpringApplication.run(DispatcherServer.class);
+
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         EventLoopGroup ioEventLoopGroup = new NioEventLoopGroup();
 

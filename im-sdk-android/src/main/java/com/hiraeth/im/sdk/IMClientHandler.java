@@ -18,6 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IMClientHandler extends ChannelInboundHandlerAdapter {
 
+    private IMClient imClient;
+
+    public IMClientHandler(IMClient imClient){
+        this.imClient = imClient;
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buffer = (ByteBuf)msg;
@@ -41,4 +47,5 @@ public class IMClientHandler extends ChannelInboundHandlerAdapter {
         super.exceptionCaught(ctx, cause);
         log.error("client occur error: {}", ctx.channel().remoteAddress(), cause);
     }
+
 }

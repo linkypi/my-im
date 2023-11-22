@@ -47,7 +47,7 @@ public class IMClient {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
                             socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
-                            socketChannel.pipeline().addLast(new IMClientHandler());
+                            socketChannel.pipeline().addLast(new IMClientHandler(IMClient.this));
                         }
                     });
             log.info("The IM client configuration is complete");
@@ -72,6 +72,13 @@ public class IMClient {
         }catch (Exception ex){
             log.error("start im client occur error", ex);
         }
+    }
+
+    public void reconnect(){
+        // 重新调用注册注册中心地址获取其他接入系统实例地址进行重连
+        String host = "";
+        int port = 8090;
+        connect(host, port);
     }
 
     private boolean isConnected(){

@@ -1,6 +1,7 @@
 package com.hiraeth.im.dispatcher;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hiraeth.im.protocol.RequestTypeProto;
 import com.hiraeth.im.common.Request;
@@ -30,13 +31,13 @@ public class RequestHandler {
 
     public void handle(Request request, SocketChannel socketChannel) throws InvalidProtocolBufferException {
         if (RequestTypeProto.RequestType.AUTHENTICATE_VALUE == request.getRequestType()) {
-            Response response = authenticate(request);
+            Response response = authenticate(request, socketChannel);
             socketChannel.writeAndFlush(response.getBuffer());
             return;
         }
     }
 
-    public Response authenticate(Request request) throws InvalidProtocolBufferException {
+    public Response authenticate(Request request, SocketChannel channel) throws InvalidProtocolBufferException {
 
         AuthenticateRequest authenticateRequest = AuthenticateRequest.parseFrom(request.getBody());
         String userId = authenticateRequest.getUid();
@@ -50,6 +51,26 @@ public class RequestHandler {
         try {
             // 连接 SSO 单点登录系统验证 userId 及 token 是否有效
             if ("test001".equals(userId) && "token".equals(token)) {
+
+                // 将 session 存储到 Redis 中
+                // key = uid , value = {
+                //    'isAuthenticated':true,
+                //    'token': '...',
+                //    'timestamp': 'xxx',
+                //    'authenticatedTime': '...',
+                //    'gatewayChannelId': 564
+                //   }
+                String gatewayChannelId = channel.remoteAddress().getHostName() + ":"
+                + channel.remoteAddress().getPort();
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("token", token);
+                jsonObject.put("timestamp", System.currentTimeMillis());
+                jsonObject.put("authenticatedTime", System.currentTimeMillis());
+                jsonObject.put("isAuthenticated", true);
+                jsonObject.put("gatewayChannelId", gatewayChannelId);
+                JedisManager jedisManager = JedisManager.getInstance();
+                jedisManager.getJedis().set("sessions:"+ userId, jsonObject.toJSONString());
+
                 builder.setSuccess(true);
                 builder.setCode(StatusCodeEnum.StatusCode.SUCCESS);
                 builder.setMessage("");

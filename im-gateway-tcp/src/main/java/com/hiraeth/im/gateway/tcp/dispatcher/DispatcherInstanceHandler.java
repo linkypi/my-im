@@ -25,7 +25,9 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
-
+        String gatewayChannelId = channel.remoteAddress().getHostName() + ":" + channel.remoteAddress().getPort();
+        DispatcherInstanceManager instance = DispatcherInstanceManager.getInstance();
+        instance.removeDistanceInstance(gatewayChannelId);
         log.info("gateway disconnected: {}", ctx.channel().remoteAddress());
     }
 
