@@ -24,18 +24,24 @@ import org.springframework.stereotype.Component;
 @ChannelHandler.Sharable
 public class DispatcherHandler extends ChannelInboundHandlerAdapter {
 
-    @Autowired
-    private RequestHandler requestHandler;
+    private final RequestHandler requestHandler;
 
-    @Autowired
-    private ResponseHandler responseHandler;
+    private final ResponseHandler responseHandler;
+
+    private final GatewayInstanceManager gatewayInstanceManager;
+
+    public DispatcherHandler(RequestHandler requestHandler, ResponseHandler responseHandler, GatewayInstanceManager gatewayInstanceManager) {
+        this.requestHandler = requestHandler;
+        this.responseHandler = responseHandler;
+        this.gatewayInstanceManager = gatewayInstanceManager;
+    }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
 
         String id = channel.remoteAddress().getHostName() + channel.remoteAddress().getPort();
-        GatewayInstanceManager.getInstance().addInstance(id, channel);
+        gatewayInstanceManager.addInstance(id, channel);
         log.info("gateway server disconnected: {}", ctx.channel().remoteAddress());
     }
 
@@ -44,7 +50,7 @@ public class DispatcherHandler extends ChannelInboundHandlerAdapter {
         SocketChannel channel = (SocketChannel) ctx.channel();
 
         String id = channel.remoteAddress().getHostName() + channel.remoteAddress().getPort();
-        GatewayInstanceManager.getInstance().removeInstance(id);
+        gatewayInstanceManager.removeInstance(id);
         log.info("gateway server connected: {}", ctx.channel().remoteAddress());
     }
 

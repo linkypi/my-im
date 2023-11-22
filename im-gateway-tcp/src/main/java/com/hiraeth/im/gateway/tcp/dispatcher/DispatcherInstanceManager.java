@@ -10,6 +10,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,14 +27,20 @@ import static com.hiraeth.im.common.Constant.DELIMITER;
  * @date: 2023/11/20 22:44
  */
 @Slf4j
-public class DispatcherInstanceManager {
+@Component
+public class DispatcherInstanceManager implements InitializingBean {
 
-    static class Singleton{
-        static DispatcherInstanceManager instanceManager = new DispatcherInstanceManager();
+    private final DispatcherInstanceHandler dispatcherInstanceHandler;
+
+    public DispatcherInstanceManager(DispatcherInstanceHandler dispatcherInstanceHandler){
+        this.dispatcherInstanceHandler = dispatcherInstanceHandler;
     }
-    public static DispatcherInstanceManager getInstance(){
-        return Singleton.instanceManager;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        init();
     }
+
     /**
      * 分发系统实例列表
      */
@@ -41,21 +50,22 @@ public class DispatcherInstanceManager {
         dispatcherInstanceAddresses.add(new DispatcherInstanceAddress("localhost","127.0.0.1", 8090));
     }
 
-    private static final Random random = new Random();;
-    public DispatcherInstance chooseDispatcherInstance(){
+    /**
+     * 分发系统实例地址
+     */
+    private static final Map<String, DispatcherInstance> dispatcherInstances = new ConcurrentHashMap<>();
+    private static final Random random = new Random();
+
+    public static DispatcherInstance chooseDispatcherInstance(){
         List<DispatcherInstance> list = new ArrayList<>(dispatcherInstances.size());
         list.addAll(dispatcherInstances.values());
         int index = random.nextInt(dispatcherInstances.size());
         return list.get(index);
     }
 
-    public void removeDistanceInstance(String gatewayChannelId){
+    public static void removeDistanceInstance(String gatewayChannelId){
         dispatcherInstances.remove(gatewayChannelId);
     }
-    /**
-     * 分发系统实例地址
-     */
-    private static final Map<String, DispatcherInstance> dispatcherInstances = new ConcurrentHashMap<>();
 
     public void init(){
         // 主动与一批分发系统实例建立长连接
@@ -79,7 +89,7 @@ public class DispatcherInstanceManager {
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
                         socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
-                        socketChannel.pipeline().addLast(new DispatcherInstanceHandler());
+                        socketChannel.pipeline().addLast(dispatcherInstanceHandler);
                     }
                 });
         ChannelFuture channelFuture = client.connect(instance.getIp(), instance.getPort());
@@ -102,5 +112,4 @@ public class DispatcherInstanceManager {
         });
         channelFuture.sync();
     }
-
 }

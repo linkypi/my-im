@@ -1,14 +1,18 @@
 package com.hiraeth.im.gateway.tcp;
 
+import com.hiraeth.im.cache.IRedisService;
 import com.hiraeth.im.protocol.MessageTypeEnum;
 import com.hiraeth.im.common.BaseMessage;
 import com.hiraeth.im.common.Request;
 import com.hiraeth.im.common.Response;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 
 /**
@@ -18,7 +22,21 @@ import lombok.extern.slf4j.Slf4j;
  * @date 11/20/23 3:12 PM
  */
 @Slf4j
+@ChannelHandler.Sharable
+@Component
 public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
+
+    private final IRedisService redisService;
+
+    private final ResponseHandler responseHandler;
+
+    private final RequestHandler requestHandler;
+
+    public GatewayTcpHandler(IRedisService redisService, ResponseHandler responseHandler, RequestHandler requestHandler) {
+        this.redisService = redisService;
+        this.responseHandler = responseHandler;
+        this.requestHandler = requestHandler;
+    }
 
     /**
      * 客户端断开连接
@@ -29,6 +47,7 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
         SessionManager instance = SessionManager.getInstance();
+        redisService.del("sessions:"+ instance.getUserId(channel));
         instance.removeSession(channel);
         log.info("app client disconnected: {}", ctx.channel().remoteAddress());
     }
@@ -48,13 +67,13 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
                     baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
 
             if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
-                RequestHandler instance = RequestHandler.getInstance();
-                instance.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
+//                RequestHandler instance = RequestHandler.getInstance();
+                requestHandler.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
                 return;
             }
             if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
-                ResponseHandler instance = ResponseHandler.getInstance();
-                instance.handle(baseMessage.toResponse());
+//                ResponseHandler instance = ResponseHandler.getInstance();
+                responseHandler.handle(baseMessage.toResponse());
                 return;
             }
         } catch (Exception ex) {

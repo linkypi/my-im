@@ -55,4 +55,9 @@ public class SessionManager {
         sessions.remove(userId);
         channelId2Uid.remove(hostName);
     }
+
+    public String getUserId(SocketChannel channel){
+        String hostName = channel.remoteAddress().getHostName();
+        return channelId2Uid.get(hostName);
+    }
 }

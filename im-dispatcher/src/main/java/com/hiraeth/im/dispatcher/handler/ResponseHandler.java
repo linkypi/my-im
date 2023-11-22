@@ -18,17 +18,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ResponseHandler {
-//    private ResponseHandler(){
-//    }
-//
-//    static class Singleton{
-//        private static final ResponseHandler instance = new ResponseHandler();
-//    }
-//
-//    public static ResponseHandler getInstance(){
-//        return Singleton.instance;
-//    }
-
     public void handle(Response response) throws InvalidProtocolBufferException {
         if(RequestTypeProto.RequestType.AUTHENTICATE_VALUE == response.getRequestType()){
             AuthenticateResponseProto.AuthenticateResponse authenticateResponse = AuthenticateResponseProto.AuthenticateResponse.parseFrom(response.getBody());

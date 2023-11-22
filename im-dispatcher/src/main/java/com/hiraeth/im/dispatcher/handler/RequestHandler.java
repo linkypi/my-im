@@ -26,15 +26,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class RequestHandler {
-//    private RequestHandler(){
-//    }
-//    static class Singleton{
-//        static final RequestHandler instance = new RequestHandler();
-//    }
-//
-//    public static RequestHandler getInstance(){
-//        return Singleton.instance;
-//    }
 
     @Autowired
     private IRedisService redisService;

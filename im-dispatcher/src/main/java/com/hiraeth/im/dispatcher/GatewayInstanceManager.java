@@ -1,6 +1,8 @@
 package com.hiraeth.im.dispatcher;
 
 import io.netty.channel.socket.SocketChannel;
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -10,14 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * @description:
  * @date: 2023/11/20 21:47
  */
+@Component
 public class GatewayInstanceManager {
-    static class Singleton{
-        private static GatewayInstanceManager instance = new GatewayInstanceManager();
-    }
-
-    public static GatewayInstanceManager getInstance(){
-        return Singleton.instance;
-    }
+//    static class Singleton{
+//        private static GatewayInstanceManager instance = new GatewayInstanceManager();
+//    }
+//
+//    public static GatewayInstanceManager getInstance(){
+//        return Singleton.instance;
+//    }
     /**
      * 接入系统实例列表
      */

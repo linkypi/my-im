@@ -11,6 +11,7 @@ import com.hiraeth.im.gateway.tcp.dispatcher.DispatcherInstance;
 import com.hiraeth.im.gateway.tcp.dispatcher.DispatcherInstanceManager;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * @author leo
@@ -19,16 +20,13 @@ import lombok.extern.slf4j.Slf4j;
  * @date 11/21/23 2:07 PM
  */
 @Slf4j
+@Component
 public class RequestHandler {
-    private RequestHandler(){
-    }
 
-    static class Singleton{
-        static final RequestHandler instance = new RequestHandler();
-    }
+    private final DispatcherInstanceManager dispatcherInstanceManager;
 
-    public static RequestHandler getInstance(){
-        return Singleton.instance;
+    public RequestHandler(DispatcherInstanceManager dispatcherInstanceManager){
+        this.dispatcherInstanceManager = dispatcherInstanceManager;
     }
 
     /**
@@ -38,14 +36,12 @@ public class RequestHandler {
      */
     public void authenticate(Request request) {
         // 随机选择一个Dispatcher分发系统地址进行请求, 随后分发系统接收到该请求后即可连接 SSO 单点登录系统进行认证
-        DispatcherInstanceManager dispatcherInstanceManager = DispatcherInstanceManager.getInstance();
         DispatcherInstance instance = dispatcherInstanceManager.chooseDispatcherInstance();
         instance.authenticate(request);
     }
 
     public void sendMessage(Request request) {
         // 随机选择一个Dispatcher分发系统地址进行转发
-        DispatcherInstanceManager dispatcherInstanceManager = DispatcherInstanceManager.getInstance();
         DispatcherInstance instance = dispatcherInstanceManager.chooseDispatcherInstance();
         instance.sendMessage(request);
     }

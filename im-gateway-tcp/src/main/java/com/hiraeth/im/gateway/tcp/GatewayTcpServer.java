@@ -13,6 +13,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import static com.hiraeth.im.common.Constant.DELIMITER;
 
@@ -23,19 +27,28 @@ import static com.hiraeth.im.common.Constant.DELIMITER;
  * @date 11/20/23 3:04 PM
  */
 @Slf4j
+@SpringBootApplication
 public class GatewayTcpServer {
 
     private static final int PORT = 8080;
 
     public static void main(String[] args) {
+        SpringApplication springApplication = new SpringApplication();
+        springApplication.setWebApplicationType(WebApplicationType.NONE);
+        ConfigurableApplicationContext context = SpringApplication.run(GatewayTcpServer.class);
+        GatewayTcpHandler gatewayTcpHandler = context.getBeanFactory().getBean(GatewayTcpHandler.class);
 
         // 启动消息推送组件
         new PushManager().start();
 
-        // 启动分发系统实例管理组件
-        DispatcherInstanceManager dispatcherInstanceManager = new DispatcherInstanceManager();
-        dispatcherInstanceManager.init();
+//         启动分发系统实例管理组件, 已通过 spring 启动流程完成初始化
+//        DispatcherInstanceManager dispatcherInstanceManager = new DispatcherInstanceManager();
+//        dispatcherInstanceManager.init();
 
+        listenServer(gatewayTcpHandler);
+    }
+
+    private static void listenServer(GatewayTcpHandler gatewayTcpHandler) {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         EventLoopGroup ioEventLoopGroup = new NioEventLoopGroup();
 
@@ -47,7 +60,7 @@ public class GatewayTcpServer {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
                             socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
-                            socketChannel.pipeline().addLast(new GatewayTcpHandler());
+                            socketChannel.pipeline().addLast(gatewayTcpHandler);
                         }
                     });
             ChannelFuture channelFuture = server.bind(PORT).sync();

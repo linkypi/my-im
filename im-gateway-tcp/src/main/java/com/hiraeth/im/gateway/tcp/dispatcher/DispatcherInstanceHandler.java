@@ -7,10 +7,12 @@ import com.hiraeth.im.common.Response;
 import com.hiraeth.im.gateway.tcp.SessionManager;
 import com.hiraeth.im.protocol.*;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * @author: lynch
@@ -18,15 +20,15 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2023/11/20 23:23
  */
 @Slf4j
+@Component
+@ChannelHandler.Sharable
 public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
-
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
         String gatewayChannelId = channel.remoteAddress().getHostName() + ":" + channel.remoteAddress().getPort();
-        DispatcherInstanceManager instance = DispatcherInstanceManager.getInstance();
-        instance.removeDistanceInstance(gatewayChannelId);
+        DispatcherInstanceManager.removeDistanceInstance(gatewayChannelId);
         log.info("gateway disconnected: {}", ctx.channel().remoteAddress());
     }
 
