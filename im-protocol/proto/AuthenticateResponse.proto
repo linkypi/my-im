@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package im;
-option java_package = "com.lynch.im.protocol";
+option java_package = "com.hiraeth.im.protocol";
 option java_outer_classname="AuthenticateResponseProto";
 
 import "StatusCode.proto";

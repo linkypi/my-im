@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.hiraeth.im.protocol";
+option java_outer_classname = "MessageTypeEnum";
+
+enum MessageType {
+    REQUEST = 0;
+    RESPONSE = 1;
+}
+
