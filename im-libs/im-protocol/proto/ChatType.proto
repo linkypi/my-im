@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.hiraeth.im.protocol";
+option java_outer_classname = "ChatTypeEnum";
+
+enum ChatType {
+    SINGLE = 0; // 单聊
+    GROUP = 1; // 群聊
+}

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.hiraeth.im.protocol";
+option java_outer_classname = "RequestTypeProto";
+
+enum RequestType {
+    AUTHENTICATE = 0;
+    SEND_MESSAGE = 1;
+    PUSH_MESSAGE = 2;
+}
+

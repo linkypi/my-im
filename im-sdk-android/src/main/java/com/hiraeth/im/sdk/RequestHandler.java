@@ -2,9 +2,10 @@ package com.hiraeth.im.sdk;
 
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hiraeth.im.protocol.AuthenticateResponseProto;
-import com.hiraeth.im.protocol.RequestTypeProto;
-import com.hiraeth.im.common.Request;
+import com.hiraeth.im.common.entity.Response;
+import com.hiraeth.im.protocol.*;
+import com.hiraeth.im.common.entity.Request;
+import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,10 +27,21 @@ public class RequestHandler {
         return Singleton.instance;
     }
 
-    public void handle(Request request) throws InvalidProtocolBufferException {
+    public void handle(Request request, SocketChannel channel) throws InvalidProtocolBufferException {
         if(RequestTypeProto.RequestType.AUTHENTICATE_VALUE == request.getRequestType()){
             AuthenticateResponseProto.AuthenticateResponse authenticateResponse = AuthenticateResponseProto.AuthenticateResponse.parseFrom(request.getBody());
             log.info("authenticate response: {}", JSON.toJSONString(authenticateResponse));
+        }
+        if(RequestTypeProto.RequestType.PUSH_MESSAGE_VALUE == request.getRequestType()){
+            MessagePushRequestProto.MessagePushRequest pushMsg = MessagePushRequestProto.MessagePushRequest.parseFrom(request.getBody());
+            log.info("server push message: {}", JSON.toJSONString(pushMsg));
+
+            // 回应服务器已接收到推送信息
+            MessagePushResponseProto.MessagePushResponse.Builder builder = MessagePushResponseProto.MessagePushResponse.newBuilder();
+            builder.setCode(StatusCodeEnum.StatusCode.SUCCESS);
+            builder.setSuccess(true);
+            Response response = new Response(request, builder.build().toByteArray());
+            channel.writeAndFlush(response.getBuffer());
         }
     }
 }

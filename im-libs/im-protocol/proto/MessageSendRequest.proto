@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.hiraeth.im.protocol";
+option java_outer_classname = "MessageSendRequestProto";
+
+import "ChatType.proto";
+import "MediaType.proto";
+
+message MessageSendRequest{
+    string from_uid = 1;
+    string to_uid = 2;      // 单聊存放用户id, 群聊存放群id
+    ChatType chat_type = 3; // 单聊或群聊
+    int32 group_id = 4;
+    int64 timestamp = 5;
+    MediaType media_type = 6;
+    string content = 7;   // 消息内容
+    string file_path = 8; // 视频, 语音, 图片, 表情等文件地址
+
+}

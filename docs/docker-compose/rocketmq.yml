@@ -1,0 +1,36 @@
+version: '3.5'
+services:
+  rmqnamesrv:
+    image: foxiswho/rocketmq:server
+    container_name: rocketmq-namesrv
+    ports:
+      - 9876:9876
+    volumes:
+      - ./data/logs:/home/rocketmq/logs
+      - ./data/store:/home/rocketmq/store
+  broker:
+    image: foxiswho/rocketmq:broker
+    container_name: rocketmq-broker
+    ports:
+      - 10909:10909
+      - 10911:10911
+    volumes:
+      - ./data/logs:/home/rocketmq/logs
+      - ./data/store:/home/rocketmq/store
+      - ./data/conf/broker.conf:/etc/rocketmq/broker.conf
+    command: mqbroker -c /etc/rocketmq/broker.conf
+    depends_on:
+      - rmqnamesrv
+    environment:
+        NAMESRV_ADDR: "rmqnamesrv:9876"
+        JAVA_OPTS: " -Duser.home=/opt"
+        JAVA_OPT_EXT: "-server -Xms128m -Xmx128m -Xmn128m"
+  console:
+    image: styletang/rocketmq-console-ng
+    container_name: rocketmq-console-ng
+    ports:
+      - 8087:8080
+    depends_on:
+      - rmqnamesrv
+    environment:
+      JAVA_OPTS: "-Dlogging.level.root=info -Drocketmq.namesrv.addr=rocketmq-namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false"

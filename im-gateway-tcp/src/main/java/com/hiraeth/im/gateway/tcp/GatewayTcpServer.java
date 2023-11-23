@@ -1,7 +1,7 @@
 package com.hiraeth.im.gateway.tcp;
 
-import com.hiraeth.im.gateway.tcp.dispatcher.DispatcherInstanceManager;
 import com.hiraeth.im.gateway.tcp.push.PushManager;
+import com.hiraeth.im.common.Constant;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -18,8 +18,6 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static com.hiraeth.im.common.Constant.DELIMITER;
-
 /**
  * @author leo
  * @ClassName GatewayTcpServer
@@ -33,8 +31,9 @@ public class GatewayTcpServer {
     private static final int PORT = 8080;
 
     public static void main(String[] args) {
-        SpringApplication springApplication = new SpringApplication();
-        springApplication.setWebApplicationType(WebApplicationType.NONE);
+        System.setProperty("rocketmq.client.logUseSlf4j", "true");
+        System.setProperty("rocketmq.client.logLevel", "ERROR");
+
         ConfigurableApplicationContext context = SpringApplication.run(GatewayTcpServer.class);
         GatewayTcpHandler gatewayTcpHandler = context.getBeanFactory().getBean(GatewayTcpHandler.class);
 
@@ -58,7 +57,7 @@ public class GatewayTcpServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
+                            ByteBuf delimiter = Unpooled.copiedBuffer(Constant.DELIMITER);
                             socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
                             socketChannel.pipeline().addLast(gatewayTcpHandler);
                         }

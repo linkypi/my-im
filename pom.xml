@@ -20,12 +20,18 @@
         <module>im-gateway-tcp</module>
         <module>im-sdk-android</module>
         <module>im-dispatcher</module>
-        <module>im-protocol</module>
-        <module>im-common</module>
-        <module>im-cache</module>
+        <module>im-libs</module>
+        <module>im-business</module>
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

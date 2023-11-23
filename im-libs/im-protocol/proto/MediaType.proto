@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.hiraeth.im.protocol";
+option java_outer_classname = "MediaTypeEnum";
+
+enum MediaType {
+    TEXT = 0; //纯文本 / 文本 + 简单预装表情
+    IMAGE_AND_TEXT = 1; // 图文
+    IMAGE = 2;
+    VOICE = 3;
+    VIDEO = 4;
+    EMOJI = 5;
+}

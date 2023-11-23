@@ -1,17 +1,15 @@
 package com.hiraeth.im.dispatcher.handler;
 
+import com.hiraeth.im.common.util.CommonUtil;
 import com.hiraeth.im.dispatcher.GatewayInstanceManager;
-import com.hiraeth.im.dispatcher.handler.RequestHandler;
-import com.hiraeth.im.dispatcher.handler.ResponseHandler;
 import com.hiraeth.im.protocol.MessageTypeEnum;
-import com.hiraeth.im.common.BaseMessage;
+import com.hiraeth.im.common.entity.BaseMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,21 +35,21 @@ public class DispatcherHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        SocketChannel channel = (SocketChannel) ctx.channel();
-
-        String id = channel.remoteAddress().getHostName() + channel.remoteAddress().getPort();
-        gatewayInstanceManager.addInstance(id, channel);
-        log.info("gateway server disconnected: {}", ctx.channel().remoteAddress());
-    }
-
-    @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
 
-        String id = channel.remoteAddress().getHostName() + channel.remoteAddress().getPort();
-        gatewayInstanceManager.removeInstance(id);
-        log.info("gateway server connected: {}", ctx.channel().remoteAddress());
+        String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
+        gatewayInstanceManager.addGatewayInstance(gatewayChannelId, channel);
+        log.info("gateway server connected: {}", gatewayChannelId);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        SocketChannel channel = (SocketChannel) ctx.channel();
+
+        String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
+        gatewayInstanceManager.removeGatewayInstance(gatewayChannelId);
+        log.info("gateway server disconnected: {}", gatewayChannelId);
     }
 
     @Override

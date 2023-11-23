@@ -1,12 +1,12 @@
 package com.hiraeth.im.sdk;
 
+import com.hiraeth.im.common.util.CommonUtil;
 import com.hiraeth.im.protocol.MessageTypeEnum;
-import com.hiraeth.im.common.BaseMessage;
-import com.hiraeth.im.common.Request;
-import com.hiraeth.im.common.Response;
+import com.hiraeth.im.common.entity.BaseMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,7 +34,7 @@ public class IMClientHandler extends ChannelInboundHandlerAdapter {
 
         if(MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()){
             RequestHandler instance = RequestHandler.getInstance();
-            instance.handle(baseMessage.toRequest());
+            instance.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
         }
         if(MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()){
             ResponseHandler instance = ResponseHandler.getInstance();
@@ -45,7 +45,8 @@ public class IMClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        log.error("client occur error: {}", ctx.channel().remoteAddress(), cause);
+        String gatewayChannelId = CommonUtil.getGatewayChannelId((SocketChannel) ctx.channel());
+        log.error("client occur error: {}", gatewayChannelId, cause);
     }
 
 }

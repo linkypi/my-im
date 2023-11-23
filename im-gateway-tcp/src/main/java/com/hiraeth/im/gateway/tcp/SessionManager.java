@@ -13,15 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 11/20/23 4:02 PM
  */
 public class SessionManager {
-    public SessionManager(){
-
-    }
-    static class Singleton{
-        public static volatile SessionManager instance = new SessionManager();
-    }
-    public static SessionManager getInstance(){
-        return Singleton.instance;
-    }
 
     /**
      * 保存客户端连接
@@ -32,16 +23,16 @@ public class SessionManager {
      */
     private static final Map<String, String> channelId2Uid = new ConcurrentHashMap<String, String>();
 
-    public void addSession(String userId, SocketChannel socketChannel){
+    public static void addSession(String userId, SocketChannel socketChannel){
         sessions.put(userId, socketChannel);
         channelId2Uid.put(socketChannel.remoteAddress().getHostName(), userId);
     }
 
-    public boolean isConnected(String userId){
+    public static boolean isConnected(String userId){
         return sessions.containsKey(userId);
     }
 
-    public SocketChannel getSession(String userId){
+    public static SocketChannel getSession(String userId){
         return sessions.get(userId);
     }
 
@@ -49,14 +40,14 @@ public class SessionManager {
      * 删除客户端连接
      * @param channel
      */
-    public void removeSession(SocketChannel channel){
+    public static void removeSession(SocketChannel channel){
         String hostName = channel.remoteAddress().getHostName();
         String userId = channelId2Uid.get(hostName);
         sessions.remove(userId);
         channelId2Uid.remove(hostName);
     }
 
-    public String getUserId(SocketChannel channel){
+    public static String getUserId(SocketChannel channel){
         String hostName = channel.remoteAddress().getHostName();
         return channelId2Uid.get(hostName);
     }

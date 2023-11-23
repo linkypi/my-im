@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package im;
+option java_package = "com.hiraeth.im.protocol";
+option java_outer_classname = "MessageSendResponseProto";
+
+import "StatusCode.proto";
+
+message MessageSendResponse{
+    bool success = 1;
+    StatusCode code = 2; // 错误码
+    string message = 3;  // 提示信息
+
+    int64 message_id = 4; // 消息id
+    string senderId = 5;
+    string receiverId = 6;
+    int64 timestamp = 7;
+}

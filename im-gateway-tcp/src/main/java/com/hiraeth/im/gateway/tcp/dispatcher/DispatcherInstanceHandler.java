@@ -2,10 +2,14 @@ package com.hiraeth.im.gateway.tcp.dispatcher;
 
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hiraeth.im.common.BaseMessage;
-import com.hiraeth.im.common.Response;
+import com.hiraeth.im.common.entity.BaseMessage;
+import com.hiraeth.im.common.entity.Response;
+import com.hiraeth.im.common.util.CommonUtil;
 import com.hiraeth.im.gateway.tcp.SessionManager;
-import com.hiraeth.im.protocol.*;
+import com.hiraeth.im.protocol.AuthenticateResponseProto;
+import com.hiraeth.im.protocol.MessageSendResponseProto;
+import com.hiraeth.im.protocol.MessageTypeEnum;
+import com.hiraeth.im.protocol.RequestTypeProto;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,16 +31,16 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
-        String gatewayChannelId = channel.remoteAddress().getHostName() + ":" + channel.remoteAddress().getPort();
+        String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
         DispatcherInstanceManager.removeDistanceInstance(gatewayChannelId);
-        log.info("gateway disconnected: {}", ctx.channel().remoteAddress());
+        log.info("gateway disconnected: {}", gatewayChannelId);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
-
-        log.info("gateway connected: {}", ctx.channel().remoteAddress());
+        String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
+        log.info("gateway connected: {}", gatewayChannelId);
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -59,7 +63,7 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
                     return;
                 }
                 if (RequestTypeProto.RequestType.SEND_MESSAGE_VALUE == response.getRequestType()) {
-                    forwardSendRequest(ctx, response);
+                    forwardSendMsgResponse(response);
                     return;
                 }
                 // 将响应返回
@@ -71,13 +75,22 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void forwardSendRequest(ChannelHandlerContext ctx, Response response) throws InvalidProtocolBufferException{
-        MessageResponseProto.MessageResponse msg = MessageResponseProto.MessageResponse.parseFrom(response.getBody());
+    /**
+     * 回复消息发送者相关响应
+     * @param response
+     * @throws InvalidProtocolBufferException
+     */
+    private void forwardSendMsgResponse(Response response) throws InvalidProtocolBufferException {
+        MessageSendResponseProto.MessageSendResponse msg = MessageSendResponseProto.MessageSendResponse.parseFrom(response.getBody());
         log.info("forward message to app client: {}", JSON.toJSONString(msg));
 
         // 将响应转发到此前请求过来的 App 会话
-        SessionManager sessionManager = SessionManager.getInstance();
-        SocketChannel session = sessionManager.getSession(msg.getUid());
+        SocketChannel session = SessionManager.getSession(msg.getSenderId());
+        if (session == null) {
+            log.warn("forward sender response failed, because session not found, sender id: {}, msg: {}",
+                    msg.getSenderId(), JSON.toJSONString(msg));
+            return;
+        }
         session.writeAndFlush(response.getBuffer());
     }
 
@@ -85,15 +98,14 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
         AuthenticateResponseProto.AuthenticateResponse authenticateResponse = AuthenticateResponseProto.AuthenticateResponse.parseFrom(response.getBody());
 
         // 将响应转发到此前请求过来的 App 会话
-        SessionManager sessionManager = SessionManager.getInstance();
-        SocketChannel session = sessionManager.getSession(authenticateResponse.getUid());
+        SocketChannel session = SessionManager.getSession(authenticateResponse.getUid());
         session.writeAndFlush(response.getBuffer());
 
         // 若认证通过则需设置本地session以及Redis中的分布式session
         if (authenticateResponse.getSuccess()) {
             log.info("authenticate success, userId: {}", authenticateResponse.getUid());
             SocketChannel channel = (SocketChannel) ctx.channel();
-            String gatewayChannelId = channel.remoteAddress().getHostName() + ":" + channel.id().asLongText();
+            String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
 
             // 将 session 存储到 Redis 中
             // key = uid , value = {
@@ -111,7 +123,8 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        log.error("client occur error: {}", ctx.channel().remoteAddress(), cause);
+        String gatewayChannelId = CommonUtil.getGatewayChannelId((SocketChannel) ctx.channel());
+        log.error("client occur error: {}", gatewayChannelId, cause);
     }
 
 }

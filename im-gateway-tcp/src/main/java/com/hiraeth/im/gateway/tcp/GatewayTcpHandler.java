@@ -2,16 +2,13 @@ package com.hiraeth.im.gateway.tcp;
 
 import com.hiraeth.im.cache.IRedisService;
 import com.hiraeth.im.protocol.MessageTypeEnum;
-import com.hiraeth.im.common.BaseMessage;
-import com.hiraeth.im.common.Request;
-import com.hiraeth.im.common.Response;
+import com.hiraeth.im.common.entity.BaseMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
@@ -46,9 +43,8 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
-        SessionManager instance = SessionManager.getInstance();
-        redisService.del("sessions:"+ instance.getUserId(channel));
-        instance.removeSession(channel);
+        redisService.del("sessions:"+ SessionManager.getUserId(channel));
+        SessionManager.removeSession(channel);
         log.info("app client disconnected: {}", ctx.channel().remoteAddress());
     }
 
@@ -67,12 +63,10 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
                     baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
 
             if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
-//                RequestHandler instance = RequestHandler.getInstance();
                 requestHandler.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
                 return;
             }
             if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
-//                ResponseHandler instance = ResponseHandler.getInstance();
                 responseHandler.handle(baseMessage.toResponse());
                 return;
             }

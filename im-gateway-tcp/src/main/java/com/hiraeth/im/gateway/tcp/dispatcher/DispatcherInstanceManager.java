@@ -1,6 +1,8 @@
 package com.hiraeth.im.gateway.tcp.dispatcher;
 
 import com.alibaba.fastjson.JSON;
+import com.hiraeth.im.common.Constant;
+import com.hiraeth.im.common.util.CommonUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -11,14 +13,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import static com.hiraeth.im.common.Constant.DELIMITER;
 
 /**
  * 分发系统管理组件
@@ -87,7 +85,7 @@ public class DispatcherInstanceManager implements InitializingBean {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        ByteBuf delimiter = Unpooled.copiedBuffer(DELIMITER);
+                        ByteBuf delimiter = Unpooled.copiedBuffer(Constant.DELIMITER);
                         socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
                         socketChannel.pipeline().addLast(dispatcherInstanceHandler);
                     }
@@ -101,7 +99,7 @@ public class DispatcherInstanceManager implements InitializingBean {
                     log.info("connect dispatcher instance success: {}", JSON.toJSONString(instance));
                     SocketChannel channel = (SocketChannel) channelFuture.channel();
                     DispatcherInstance dispatcherInstance = new DispatcherInstance(channel);
-                    String gatewayChannelId = channel.remoteAddress().getHostName() + ":" + channel.remoteAddress().getPort();
+                    String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
                     dispatcherInstances.put(gatewayChannelId, dispatcherInstance);
                 } else {
                     log.error("connect dispatcher instance occur error: {}", JSON.toJSONString(instance));

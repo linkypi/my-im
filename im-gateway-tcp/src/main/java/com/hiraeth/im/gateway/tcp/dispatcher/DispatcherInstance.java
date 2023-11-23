@@ -1,6 +1,6 @@
 package com.hiraeth.im.gateway.tcp.dispatcher;
 
-import com.hiraeth.im.common.Request;
+import com.hiraeth.im.common.entity.Request;
 import io.netty.channel.socket.SocketChannel;
 import lombok.Getter;
 import lombok.Setter;

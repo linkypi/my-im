@@ -1,12 +1,9 @@
 package com.hiraeth.im.gateway.tcp.push;
 
 import com.hiraeth.im.common.Constant;
-import com.hiraeth.im.common.Request;
+import com.hiraeth.im.common.entity.Request;
 import com.hiraeth.im.gateway.tcp.SessionManager;
-import com.hiraeth.im.protocol.MessageProto;
-import com.hiraeth.im.protocol.RequestTypeProto;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import com.hiraeth.im.protocol.*;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,16 +28,18 @@ public class PushManager {
                 try {
                     String userId = "test001";
                     Thread.sleep(10 * 1000);
-                    SessionManager instance = SessionManager.getInstance();
-                    SocketChannel channel = instance.getSession(userId);
+                    SocketChannel channel = SessionManager.getSession(userId);
                     if (channel != null) {
                         String msg = "push one msg from " + userId ;
-                        MessageProto.Message.Builder builder = MessageProto.Message.newBuilder();
+                        MessagePushRequestProto.MessagePushRequest.Builder builder = MessagePushRequestProto.MessagePushRequest.newBuilder();
                         builder.setTimestamp(System.currentTimeMillis());
+                        builder.setChatType(ChatTypeEnum.ChatType.SINGLE);
+                        builder.setMediaType(MediaTypeEnum.MediaType.TEXT);
                         builder.setFromUid(userId);
-                        builder.setText(msg);
+                        builder.setToUid(userId);
+                        builder.setContent(msg);
                         Request request = new Request(Constant.APP_SDK_VERSION,
-                                RequestTypeProto.RequestType.SEND_MESSAGE, builder.build().toByteArray());
+                                RequestTypeProto.RequestType.PUSH_MESSAGE, builder.build().toByteArray());
 
                         channel.writeAndFlush(request.getBuffer());
                         log.info("push msg to client success: {}", userId);

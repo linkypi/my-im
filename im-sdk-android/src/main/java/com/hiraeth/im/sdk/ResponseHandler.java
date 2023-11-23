@@ -2,9 +2,8 @@ package com.hiraeth.im.sdk;
 
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.hiraeth.im.protocol.AuthenticateResponseProto;
-import com.hiraeth.im.protocol.RequestTypeProto;
-import com.hiraeth.im.common.Response;
+import com.hiraeth.im.protocol.*;
+import com.hiraeth.im.common.entity.Response;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,5 +30,13 @@ public class ResponseHandler {
             AuthenticateResponseProto.AuthenticateResponse authenticateResponse = AuthenticateResponseProto.AuthenticateResponse.parseFrom(response.getBody());
             log.info("authenticate response: {}", JSON.toJSONString(authenticateResponse));
         }
+        if(RequestTypeProto.RequestType.SEND_MESSAGE_VALUE == response.getRequestType()){
+            MessageSendResponseProto.MessageSendResponse messageSendResponse = MessageSendResponseProto.MessageSendResponse.parseFrom(response.getBody());
+            log.info("send msg response: {}", JSON.toJSONString(messageSendResponse));
+        }
+//        if(RequestTypeProto.RequestType.PUSH_MESSAGE_VALUE == response.getRequestType()){
+//            MessagePushResponseProto.MessagePushResponse pushMsg = MessagePushResponseProto.MessagePushResponse.parseFrom(response.getBody());
+//            log.info("server push message: {}", JSON.toJSONString(pushMsg));
+//        }
     }
 }

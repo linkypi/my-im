@@ -4,15 +4,19 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hiraeth.im.cache.IRedisService;
-//import com.hiraeth.im.dispatcher.JedisManager;
-import com.hiraeth.im.protocol.MessageProto;
-import com.hiraeth.im.protocol.MessageResponseProto;
-import com.hiraeth.im.protocol.RequestTypeProto;
-import com.hiraeth.im.common.Request;
-import com.hiraeth.im.common.Response;
+import com.hiraeth.im.common.MQConstant;
+import com.hiraeth.im.common.entity.Request;
+import com.hiraeth.im.common.entity.Response;
+import com.hiraeth.im.common.entity.mq.MQSenderMessage;
+import com.hiraeth.im.common.snowflake.SnowFlakeIdUtil;
+import com.hiraeth.im.common.util.CommonUtil;
 import com.hiraeth.im.protocol.AuthenticateRequestProto.*;
 import com.hiraeth.im.protocol.AuthenticateResponseProto.*;
+import com.hiraeth.im.protocol.MessageSendRequestProto;
+import com.hiraeth.im.protocol.MessageSendResponseProto;
+import com.hiraeth.im.protocol.RequestTypeProto;
 import com.hiraeth.im.protocol.StatusCodeEnum;
+import com.hiraeth.im.mq.MQProducer;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +34,9 @@ public class RequestHandler {
     @Autowired
     private IRedisService redisService;
 
+    @Autowired
+    private MQProducer mqProducer;
+
     public void handle(Request request, SocketChannel socketChannel) throws InvalidProtocolBufferException {
         if (RequestTypeProto.RequestType.AUTHENTICATE_VALUE == request.getRequestType()) {
             Response response = authenticate(request, socketChannel);
@@ -37,23 +44,29 @@ public class RequestHandler {
             return;
         }
         if (RequestTypeProto.RequestType.SEND_MESSAGE_VALUE == request.getRequestType()) {
-            Response response = saveMessage(request);
-            socketChannel.writeAndFlush(response.getBuffer());
+            saveMessage(request, socketChannel);
             return;
         }
         log.warn("unknown request: {}", JSON.toJSONString(request));
     }
 
-    public Response saveMessage(Request request) throws InvalidProtocolBufferException {
-        MessageProto.Message msg = MessageProto.Message.parseFrom(request.getBody());
+    /**
+     * 将消息保存到 MQ , 异步解耦后通过 im-business 业务系统来存储消息
+     * 存储成功后, 业务系统再发MQ消息回复发送者处理结果
+     * @param request
+     * @param channel
+     * @return
+     * @throws InvalidProtocolBufferException
+     */
+    public void saveMessage(Request request, SocketChannel channel) throws InvalidProtocolBufferException {
+        MessageSendRequestProto.MessageSendRequest msg = MessageSendRequestProto.MessageSendRequest.parseFrom(request.getBody());
         log.info("get message from gateway server: {}", JSON.toJSONString(msg));
 
-        MessageResponseProto.MessageResponse.Builder builder = MessageResponseProto.MessageResponse.newBuilder();
-        builder.setCode(StatusCodeEnum.StatusCode.SUCCESS);
-        builder.setSuccess(true);
-        builder.setUid(msg.getFromUid());
-        builder.setTimestamp(System.currentTimeMillis());
-        return new Response(request, builder.build().toByteArray());
+        String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
+        long messageId = SnowFlakeIdUtil.getNextId();
+        MQSenderMessage mqSenderMessage = new MQSenderMessage(messageId, request, gatewayChannelId, msg);
+        // 保存消息， 得到 messageId 并返回
+        mqProducer.syncSend(MQConstant.Topic.CHAT_SENDER_MESSAGE, mqSenderMessage);
     }
 
     public Response authenticate(Request request, SocketChannel channel) throws InvalidProtocolBufferException {
@@ -79,8 +92,7 @@ public class RequestHandler {
                 //    'authenticatedTime': '...',
                 //    'gatewayChannelId': 564
                 //   }
-                String gatewayChannelId = channel.remoteAddress().getHostName() + ":"
-                + channel.remoteAddress().getPort();
+                String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("token", token);
                 jsonObject.put("timestamp", System.currentTimeMillis());

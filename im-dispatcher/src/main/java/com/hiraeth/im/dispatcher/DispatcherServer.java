@@ -13,13 +13,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.BeansException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -29,14 +25,14 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 @Slf4j
 @SpringBootApplication
-//@MapperScan("com.hiraeth.im.dispatcher")
 public class DispatcherServer {
 
     private static final int PORT = 8090;
     public static void main(String[] args) {
 
-        SpringApplication springApplication = new SpringApplication();
-        springApplication.setWebApplicationType(WebApplicationType.NONE);
+        System.setProperty("rocketmq.client.logUseSlf4j", "true");
+        System.setProperty("rocketmq.client.logLevel", "ERROR");
+
         ConfigurableApplicationContext context = SpringApplication.run(DispatcherServer.class);
         DispatcherHandler dispatcherHandler = context.getBeanFactory().getBean(DispatcherHandler.class);
 
