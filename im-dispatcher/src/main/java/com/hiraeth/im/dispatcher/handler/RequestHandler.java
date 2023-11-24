@@ -7,6 +7,7 @@ import com.hiraeth.im.cache.IRedisService;
 import com.hiraeth.im.common.MQConstant;
 import com.hiraeth.im.common.entity.Request;
 import com.hiraeth.im.common.entity.Response;
+import com.hiraeth.im.common.entity.Session;
 import com.hiraeth.im.common.entity.mq.MQSenderMessage;
 import com.hiraeth.im.common.snowflake.SnowFlakeIdUtil;
 import com.hiraeth.im.common.util.CommonUtil;
@@ -21,6 +22,10 @@ import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
+
+import static com.hiraeth.im.common.Constant.SESSIONS_KEY_PREFIX;
 
 /**
  * @author: lynch
@@ -82,7 +87,7 @@ public class RequestHandler {
 
         try {
             // 连接 SSO 单点登录系统验证 userId 及 token 是否有效
-            if ("test001".equals(userId) && "token".equals(token)) {
+            if (("test001".equals(userId) || "test005".equals(userId)) && "token".equals(token)) {
 
                 // 将 session 存储到 Redis 中
                 // key = uid , value = {
@@ -93,13 +98,9 @@ public class RequestHandler {
                 //    'gatewayChannelId': 564
                 //   }
                 String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("token", token);
-                jsonObject.put("timestamp", System.currentTimeMillis());
-                jsonObject.put("authenticatedTime", System.currentTimeMillis());
-                jsonObject.put("isAuthenticated", true);
-                jsonObject.put("gatewayChannelId", gatewayChannelId);
-                redisService.set("sessions:"+ userId, jsonObject.toJSONString());
+                Date currentDate = new Date();
+                Session session = new Session(token, currentDate.getTime(), currentDate, true, gatewayChannelId);
+                redisService.set(SESSIONS_KEY_PREFIX + userId, JSON.toJSONString(session));
 
                 builder.setSuccess(true);
                 builder.setCode(StatusCodeEnum.StatusCode.SUCCESS);

@@ -10,6 +10,7 @@ import java.util.List;
  * @date: 2023/11/23 15:21
  */
 public interface IMessageReceiveService {
+    boolean setDeliveredSuccess(long messageId);
     boolean save(MessageReceive model);
     boolean batchSave(List<MessageReceive> models);
 }

@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * @author leo
+ * 根据当前存在的连接会话进行主动推送
+ * @author linxueqi
  * @ClassName PushManager
  * @description: TODO
  * @date 11/20/23 4:16 PM
@@ -35,8 +36,8 @@ public class PushManager {
                         builder.setTimestamp(System.currentTimeMillis());
                         builder.setChatType(ChatTypeEnum.ChatType.SINGLE);
                         builder.setMediaType(MediaTypeEnum.MediaType.TEXT);
-                        builder.setFromUid(userId);
-                        builder.setToUid(userId);
+                        builder.setSenderId(userId);
+                        builder.setReceiverId(userId);
                         builder.setContent(msg);
                         Request request = new Request(Constant.APP_SDK_VERSION,
                                 RequestTypeProto.RequestType.PUSH_MESSAGE, builder.build().toByteArray());

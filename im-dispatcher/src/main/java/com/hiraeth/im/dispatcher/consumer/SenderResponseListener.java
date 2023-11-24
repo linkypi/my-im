@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 将
+ * 处理流程：
+ * 1. 发送者经过： App -> gateway server -> dispatcher -> business 后将消息发送到业务系统进行保存
+ * 2. 业务系统保存成功后，通过 MQ 通知分发系统可以将消息投递给接收者
  * @author: lynch
  * @description:
  * @date: 2023/11/23 17:47
@@ -34,8 +36,11 @@ import org.springframework.stereotype.Service;
         consumeMode = ConsumeMode.CONCURRENTLY)
 public class SenderResponseListener extends MQBaseListener<MQSenderResponseMessage> {
 
-    @Autowired
-    private GatewayInstanceManager gatewayInstanceManager;
+    private final GatewayInstanceManager gatewayInstanceManager;
+
+    public SenderResponseListener(GatewayInstanceManager gatewayInstanceManager) {
+        this.gatewayInstanceManager = gatewayInstanceManager;
+    }
 
     @Override
     public void onMsg(MQSenderResponseMessage message) {
@@ -45,7 +50,7 @@ public class SenderResponseListener extends MQBaseListener<MQSenderResponseMessa
             return;
         }
 
-        // 通过messageId查询到消息后, 通过 GatewayInstanceManager 将消息转发到相关 gateway server 实例
+        // 通过 GatewayInstanceManager 将消息转发到相关 gateway server 实例
         SocketChannel gatewayInstance = gatewayInstanceManager.getGatewayInstance(message.getGatewayChannelId());
         if (gatewayInstance == null) {
             log.error("send response to gateway server failed, because gateway instance not found, gateway channel id: {}, msg: {}",

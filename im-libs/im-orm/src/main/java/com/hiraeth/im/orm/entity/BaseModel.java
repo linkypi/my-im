@@ -1,4 +1,4 @@
-package com.hiraeth.im.business.entity;
+package com.hiraeth.im.orm.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.FieldFill;

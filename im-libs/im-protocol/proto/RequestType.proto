@@ -7,6 +7,7 @@ option java_outer_classname = "RequestTypeProto";
 enum RequestType {
     AUTHENTICATE = 0;
     SEND_MESSAGE = 1;
-    PUSH_MESSAGE = 2;
+    PUSH_MESSAGE = 2; // 服务器推送
+    FORWARD_MESSAGE = 3; // 将发送者的消息转发到接收者
 }
 

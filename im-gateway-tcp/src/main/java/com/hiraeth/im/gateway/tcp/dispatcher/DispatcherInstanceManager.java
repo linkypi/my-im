@@ -3,6 +3,7 @@ package com.hiraeth.im.gateway.tcp.dispatcher;
 import com.alibaba.fastjson.JSON;
 import com.hiraeth.im.common.Constant;
 import com.hiraeth.im.common.util.CommonUtil;
+import com.hiraeth.im.common.util.StringUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -49,6 +50,29 @@ public class DispatcherInstanceManager implements InitializingBean {
     }
 
     /**
+     *
+     */
+    private static final Map<String, SocketChannel> userChannels = new ConcurrentHashMap<>();
+    private static final Map<String, String> channelId2Uid = new ConcurrentHashMap<String, String>();
+
+    public static void addDispatcherChannel(String userId, SocketChannel channel){
+        userChannels.put(userId, channel);
+
+        String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
+        channelId2Uid.put(gatewayChannelId, userId);
+    }
+
+    public static SocketChannel getDispatcherChannel(String userId){
+        return userChannels.get(userId);
+    }
+    public static void removeDispatcherChannel(String userId){
+        SocketChannel socketChannel = userChannels.get(userId);
+        String gatewayChannelId = CommonUtil.getGatewayChannelId(socketChannel);
+        userChannels.remove(userId);
+        channelId2Uid.remove(gatewayChannelId);
+    }
+
+    /**
      * 分发系统实例地址
      */
     private static final Map<String, DispatcherInstance> dispatcherInstances = new ConcurrentHashMap<>();
@@ -61,7 +85,7 @@ public class DispatcherInstanceManager implements InitializingBean {
         return list.get(index);
     }
 
-    public static void removeDistanceInstance(String gatewayChannelId){
+    public static void removeDispatcherInstance(String gatewayChannelId){
         dispatcherInstances.remove(gatewayChannelId);
     }
 
@@ -69,14 +93,14 @@ public class DispatcherInstanceManager implements InitializingBean {
         // 主动与一批分发系统实例建立长连接
         for(DispatcherInstanceAddress instance: dispatcherInstanceAddresses){
             try {
-                connectDispatchInstance(instance);
+                connectDispatcherInstance(instance);
             }catch (Exception ex){
                 log.error("connect to dispatcher instance occur error, instance: {}", JSON.toJSONString(instance), ex);
             }
         }
     }
 
-    private void connectDispatchInstance(final DispatcherInstanceAddress instance) throws InterruptedException {
+    private void connectDispatcherInstance(final DispatcherInstanceAddress instance) throws InterruptedException {
         Bootstrap client = new Bootstrap();
         final NioEventLoopGroup threadGroup = new NioEventLoopGroup();
         client.group(threadGroup)

@@ -143,8 +143,8 @@ public class IMClient {
         builder.setTimestamp(System.currentTimeMillis());
         builder.setChatType(ChatTypeEnum.ChatType.SINGLE);
         builder.setMediaType(MediaTypeEnum.MediaType.TEXT);
-        builder.setFromUid(fromUid);
-        builder.setToUid(toUid);
+        builder.setSenderId(fromUid);
+        builder.setReceiverId(toUid);
         builder.setContent(msg);
         Request request = new Request(Constant.APP_SDK_VERSION,
                 RequestType.SEND_MESSAGE, builder.build().toByteArray());

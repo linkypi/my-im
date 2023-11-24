@@ -29,9 +29,21 @@ public final class RequestTypeProto {
      */
     SEND_MESSAGE(1),
     /**
+     * <pre>
+     * 服务器推送
+     * </pre>
+     *
      * <code>PUSH_MESSAGE = 2;</code>
      */
     PUSH_MESSAGE(2),
+    /**
+     * <pre>
+     * 将发送者的消息转发到接收者
+     * </pre>
+     *
+     * <code>FORWARD_MESSAGE = 3;</code>
+     */
+    FORWARD_MESSAGE(3),
     UNRECOGNIZED(-1),
     ;
 
@@ -44,9 +56,21 @@ public final class RequestTypeProto {
      */
     public static final int SEND_MESSAGE_VALUE = 1;
     /**
+     * <pre>
+     * 服务器推送
+     * </pre>
+     *
      * <code>PUSH_MESSAGE = 2;</code>
      */
     public static final int PUSH_MESSAGE_VALUE = 2;
+    /**
+     * <pre>
+     * 将发送者的消息转发到接收者
+     * </pre>
+     *
+     * <code>FORWARD_MESSAGE = 3;</code>
+     */
+    public static final int FORWARD_MESSAGE_VALUE = 3;
 
 
     public final int getNumber() {
@@ -76,6 +100,7 @@ public final class RequestTypeProto {
         case 0: return AUTHENTICATE;
         case 1: return SEND_MESSAGE;
         case 2: return PUSH_MESSAGE;
+        case 3: return FORWARD_MESSAGE;
         default: return null;
       }
     }
@@ -141,10 +166,11 @@ public final class RequestTypeProto {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\021RequestType.proto\022\002im*C\n\013RequestType\022\020" +
+      "\n\021RequestType.proto\022\002im*X\n\013RequestType\022\020" +
       "\n\014AUTHENTICATE\020\000\022\020\n\014SEND_MESSAGE\020\001\022\020\n\014PU" +
-      "SH_MESSAGE\020\002B+\n\027com.hiraeth.im.protocolB" +
-      "\020RequestTypeProtob\006proto3"
+      "SH_MESSAGE\020\002\022\023\n\017FORWARD_MESSAGE\020\003B+\n\027com" +
+      ".hiraeth.im.protocolB\020RequestTypeProtob\006" +
+      "proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

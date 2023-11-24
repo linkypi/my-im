@@ -8,8 +8,8 @@ import "ChatType.proto";
 import "MediaType.proto";
 
 message MessageSendRequest{
-    string from_uid = 1;
-    string to_uid = 2;      // 单聊存放用户id, 群聊存放群id
+    string senderId = 1;
+    string receiverId = 2;      // 单聊存放用户id, 群聊存放群id
     ChatType chat_type = 3; // 单聊或群聊
     int32 group_id = 4;
     int64 timestamp = 5;

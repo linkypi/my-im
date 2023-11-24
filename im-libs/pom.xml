@@ -17,6 +17,7 @@
         <module>im-common</module>
         <module>im-cache</module>
         <module>im-mq</module>
+        <module>im-orm</module>
     </modules>
 
     <properties>

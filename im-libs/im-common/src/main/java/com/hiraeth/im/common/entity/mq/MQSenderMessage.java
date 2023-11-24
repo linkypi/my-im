@@ -19,8 +19,8 @@ import java.io.Serializable;
 public class MQSenderMessage implements Serializable {
 
     public MQSenderMessage(long messageId, Request request, String gatewayChannelId, MessageSendRequest message){
-        this.senderId = message.getFromUid();
-        this.receiveId = message.getToUid();
+        this.senderId = message.getSenderId();
+        this.receiveId = message.getReceiverId();
         this.chatType = message.getChatType().name();
         this.groupId = message.getGroupId();
         this.timeStamp = message.getTimestamp();

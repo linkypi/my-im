@@ -11,6 +11,8 @@ import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static com.hiraeth.im.common.Constant.SESSIONS_KEY_PREFIX;
+
 
 /**
  * @author leo
@@ -43,7 +45,7 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
-        redisService.del("sessions:"+ SessionManager.getUserId(channel));
+        redisService.del(SESSIONS_KEY_PREFIX + SessionManager.getUserId(channel));
         SessionManager.removeSession(channel);
         log.info("app client disconnected: {}", ctx.channel().remoteAddress());
     }
@@ -67,7 +69,7 @@ public class GatewayTcpHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
-                responseHandler.handle(baseMessage.toResponse());
+                responseHandler.handle(baseMessage.toResponse(), (SocketChannel) ctx.channel());
                 return;
             }
         } catch (Exception ex) {

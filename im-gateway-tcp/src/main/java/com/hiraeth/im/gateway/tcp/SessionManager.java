@@ -1,5 +1,6 @@
 package com.hiraeth.im.gateway.tcp;
 
+import com.hiraeth.im.common.util.CommonUtil;
 import io.netty.channel.socket.SocketChannel;
 
 import java.util.Map;
@@ -25,7 +26,9 @@ public class SessionManager {
 
     public static void addSession(String userId, SocketChannel socketChannel){
         sessions.put(userId, socketChannel);
-        channelId2Uid.put(socketChannel.remoteAddress().getHostName(), userId);
+
+        String key = CommonUtil.getGatewayChannelId(socketChannel);
+        channelId2Uid.put(key, userId);
     }
 
     public static boolean isConnected(String userId){
@@ -41,14 +44,15 @@ public class SessionManager {
      * @param channel
      */
     public static void removeSession(SocketChannel channel){
-        String hostName = channel.remoteAddress().getHostName();
-        String userId = channelId2Uid.get(hostName);
+        String key = CommonUtil.getGatewayChannelId(channel);
+        String userId = channelId2Uid.get(key);
         sessions.remove(userId);
-        channelId2Uid.remove(hostName);
+        channelId2Uid.remove(key);
     }
 
     public static String getUserId(SocketChannel channel){
-        String hostName = channel.remoteAddress().getHostName();
-        return channelId2Uid.get(hostName);
+        String key = CommonUtil.getGatewayChannelId(channel);
+        return channelId2Uid.get(key);
     }
+
 }

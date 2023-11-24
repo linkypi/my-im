@@ -3,13 +3,11 @@ package com.hiraeth.im.gateway.tcp.dispatcher;
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hiraeth.im.common.entity.BaseMessage;
+import com.hiraeth.im.common.entity.Request;
 import com.hiraeth.im.common.entity.Response;
 import com.hiraeth.im.common.util.CommonUtil;
 import com.hiraeth.im.gateway.tcp.SessionManager;
-import com.hiraeth.im.protocol.AuthenticateResponseProto;
-import com.hiraeth.im.protocol.MessageSendResponseProto;
-import com.hiraeth.im.protocol.MessageTypeEnum;
-import com.hiraeth.im.protocol.RequestTypeProto;
+import com.hiraeth.im.protocol.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,7 +30,7 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         SocketChannel channel = (SocketChannel) ctx.channel();
         String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
-        DispatcherInstanceManager.removeDistanceInstance(gatewayChannelId);
+        DispatcherInstanceManager.removeDispatcherInstance(gatewayChannelId);
         log.info("gateway disconnected: {}", gatewayChannelId);
     }
 
@@ -52,6 +50,10 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
                     baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
 
             if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
+                Request request = baseMessage.toRequest();
+                if(RequestTypeProto.RequestType.FORWARD_MESSAGE_VALUE == baseMessage.getRequestType()) {
+                    forwardMsgToClient(request, (SocketChannel) ctx.channel());
+                }
                 return;
             }
 
@@ -75,6 +77,22 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    private void forwardMsgToClient(Request request, SocketChannel channel) throws InvalidProtocolBufferException {
+
+        MessageForwardRequestProto.MessageForwardRequest forwardRequest = MessageForwardRequestProto.MessageForwardRequest.parseFrom(request.getBody());
+        log.info("forward msg to receiver: {}", JSON.toJSONString(forwardRequest));
+
+        DispatcherInstanceManager.addDispatcherChannel(forwardRequest.getReceiverId(), channel);
+        // 将响应转发到此前请求过来的 App 会话
+        SocketChannel session = SessionManager.getSession(forwardRequest.getReceiverId());
+        if (session == null) {
+            log.warn("forward message to receiver failed, because session not found, receiver id: {}, msg: {}",
+                    forwardRequest.getReceiverId(), JSON.toJSONString(forwardRequest));
+            return;
+        }
+        session.writeAndFlush(request.getBuffer());
+    }
+
     /**
      * 回复消息发送者相关响应
      * @param response
@@ -82,12 +100,12 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
      */
     private void forwardSendMsgResponse(Response response) throws InvalidProtocolBufferException {
         MessageSendResponseProto.MessageSendResponse msg = MessageSendResponseProto.MessageSendResponse.parseFrom(response.getBody());
-        log.info("forward message to app client: {}", JSON.toJSONString(msg));
+        log.info("forward sender message response to app client: {}", JSON.toJSONString(msg));
 
         // 将响应转发到此前请求过来的 App 会话
         SocketChannel session = SessionManager.getSession(msg.getSenderId());
         if (session == null) {
-            log.warn("forward sender response failed, because session not found, sender id: {}, msg: {}",
+            log.warn("forward sender message response failed, because session not found, sender id: {}, msg: {}",
                     msg.getSenderId(), JSON.toJSONString(msg));
             return;
         }
@@ -104,17 +122,7 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
         // 若认证通过则需设置本地session以及Redis中的分布式session
         if (authenticateResponse.getSuccess()) {
             log.info("authenticate success, userId: {}", authenticateResponse.getUid());
-            SocketChannel channel = (SocketChannel) ctx.channel();
-            String gatewayChannelId = CommonUtil.getGatewayChannelId(channel);
-
-            // 将 session 存储到 Redis 中
-            // key = uid , value = {
-            //    'isAuthenticated':true,
-            //    'token': '...',
-            //    'timestamp': 'xxx',
-            //    'authenticatedTime': '...',
-            //    'gatewayChannelId': 564
-            //   }
+//            SocketChannel channel = (SocketChannel) ctx.channel();
             return;
         }
         log.info("authenticate failed, response: {}", JSON.toJSONString(authenticateResponse));

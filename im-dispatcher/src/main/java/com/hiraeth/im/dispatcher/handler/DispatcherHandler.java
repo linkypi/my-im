@@ -65,7 +65,7 @@ public class DispatcherHandler extends ChannelInboundHandlerAdapter {
                 requestHandler.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
             }
             if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
-                responseHandler.handle(baseMessage.toResponse());
+                responseHandler.handle(baseMessage.toResponse(), (SocketChannel) ctx.channel());
             }
         } catch (Exception ex) {
             log.error("handle message occur error, message type: {}, request type: {}, sequence: {}",

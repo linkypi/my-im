@@ -20,6 +20,11 @@ import java.util.List;
 public class MessageReceiveService extends ServiceImpl<MessageReceiveMapper, MessageReceive> implements IMessageReceiveService {
 
     @Override
+    public boolean setDeliveredSuccess(long messageId) {
+        return baseMapper.updateDelivered(messageId);
+    }
+
+    @Override
     public boolean save(MessageReceive entity) {
         return super.save(entity);
     }

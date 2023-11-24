@@ -20,36 +20,36 @@ public final class MessagePushRequestProto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>string from_uid = 1;</code>
-     * @return The fromUid.
+     * <code>string senderId = 1;</code>
+     * @return The senderId.
      */
-    String getFromUid();
+    String getSenderId();
     /**
-     * <code>string from_uid = 1;</code>
-     * @return The bytes for fromUid.
+     * <code>string senderId = 1;</code>
+     * @return The bytes for senderId.
      */
     com.google.protobuf.ByteString
-        getFromUidBytes();
+        getSenderIdBytes();
 
     /**
      * <pre>
      * 单聊存放用户id, 群聊存放群id
      * </pre>
      *
-     * <code>string to_uid = 2;</code>
-     * @return The toUid.
+     * <code>string receiverId = 2;</code>
+     * @return The receiverId.
      */
-    String getToUid();
+    String getReceiverId();
     /**
      * <pre>
      * 单聊存放用户id, 群聊存放群id
      * </pre>
      *
-     * <code>string to_uid = 2;</code>
-     * @return The bytes for toUid.
+     * <code>string receiverId = 2;</code>
+     * @return The bytes for receiverId.
      */
     com.google.protobuf.ByteString
-        getToUidBytes();
+        getReceiverIdBytes();
 
     /**
      * <pre>
@@ -132,6 +132,16 @@ public final class MessagePushRequestProto {
      */
     com.google.protobuf.ByteString
         getFilePathBytes();
+
+    /**
+     * <pre>
+     * 消息id
+     * </pre>
+     *
+     * <code>int64 message_id = 9;</code>
+     * @return The messageId.
+     */
+    long getMessageId();
   }
   /**
    * Protobuf type {@code im.MessagePushRequest}
@@ -146,8 +156,8 @@ public final class MessagePushRequestProto {
       super(builder);
     }
     private MessagePushRequest() {
-      fromUid_ = "";
-      toUid_ = "";
+      senderId_ = "";
+      receiverId_ = "";
       chatType_ = 0;
       mediaType_ = 0;
       content_ = "";
@@ -174,66 +184,66 @@ public final class MessagePushRequestProto {
               MessagePushRequest.class, Builder.class);
     }
 
-    public static final int FROM_UID_FIELD_NUMBER = 1;
+    public static final int SENDERID_FIELD_NUMBER = 1;
     @SuppressWarnings("serial")
-    private volatile Object fromUid_ = "";
+    private volatile Object senderId_ = "";
     /**
-     * <code>string from_uid = 1;</code>
-     * @return The fromUid.
+     * <code>string senderId = 1;</code>
+     * @return The senderId.
      */
     @Override
-    public String getFromUid() {
-      Object ref = fromUid_;
+    public String getSenderId() {
+      Object ref = senderId_;
       if (ref instanceof String) {
         return (String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         String s = bs.toStringUtf8();
-        fromUid_ = s;
+        senderId_ = s;
         return s;
       }
     }
     /**
-     * <code>string from_uid = 1;</code>
-     * @return The bytes for fromUid.
+     * <code>string senderId = 1;</code>
+     * @return The bytes for senderId.
      */
     @Override
     public com.google.protobuf.ByteString
-        getFromUidBytes() {
-      Object ref = fromUid_;
+        getSenderIdBytes() {
+      Object ref = senderId_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (String) ref);
-        fromUid_ = b;
+        senderId_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
 
-    public static final int TO_UID_FIELD_NUMBER = 2;
+    public static final int RECEIVERID_FIELD_NUMBER = 2;
     @SuppressWarnings("serial")
-    private volatile Object toUid_ = "";
+    private volatile Object receiverId_ = "";
     /**
      * <pre>
      * 单聊存放用户id, 群聊存放群id
      * </pre>
      *
-     * <code>string to_uid = 2;</code>
-     * @return The toUid.
+     * <code>string receiverId = 2;</code>
+     * @return The receiverId.
      */
     @Override
-    public String getToUid() {
-      Object ref = toUid_;
+    public String getReceiverId() {
+      Object ref = receiverId_;
       if (ref instanceof String) {
         return (String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         String s = bs.toStringUtf8();
-        toUid_ = s;
+        receiverId_ = s;
         return s;
       }
     }
@@ -242,18 +252,18 @@ public final class MessagePushRequestProto {
      * 单聊存放用户id, 群聊存放群id
      * </pre>
      *
-     * <code>string to_uid = 2;</code>
-     * @return The bytes for toUid.
+     * <code>string receiverId = 2;</code>
+     * @return The bytes for receiverId.
      */
     @Override
     public com.google.protobuf.ByteString
-        getToUidBytes() {
-      Object ref = toUid_;
+        getReceiverIdBytes() {
+      Object ref = receiverId_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (String) ref);
-        toUid_ = b;
+        receiverId_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -420,6 +430,21 @@ public final class MessagePushRequestProto {
       }
     }
 
+    public static final int MESSAGE_ID_FIELD_NUMBER = 9;
+    private long messageId_ = 0L;
+    /**
+     * <pre>
+     * 消息id
+     * </pre>
+     *
+     * <code>int64 message_id = 9;</code>
+     * @return The messageId.
+     */
+    @Override
+    public long getMessageId() {
+      return messageId_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @Override
     public final boolean isInitialized() {
@@ -434,11 +459,11 @@ public final class MessagePushRequestProto {
     @Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(fromUid_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, fromUid_);
+      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(senderId_)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, senderId_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(toUid_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, toUid_);
+      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(receiverId_)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, receiverId_);
       }
       if (chatType_ != ChatTypeEnum.ChatType.SINGLE.getNumber()) {
         output.writeEnum(3, chatType_);
@@ -458,6 +483,9 @@ public final class MessagePushRequestProto {
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(filePath_)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 8, filePath_);
       }
+      if (messageId_ != 0L) {
+        output.writeInt64(9, messageId_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -467,11 +495,11 @@ public final class MessagePushRequestProto {
       if (size != -1) return size;
 
       size = 0;
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(fromUid_)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, fromUid_);
+      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(senderId_)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, senderId_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(toUid_)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, toUid_);
+      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(receiverId_)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, receiverId_);
       }
       if (chatType_ != ChatTypeEnum.ChatType.SINGLE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
@@ -495,6 +523,10 @@ public final class MessagePushRequestProto {
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(filePath_)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, filePath_);
       }
+      if (messageId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(9, messageId_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -510,10 +542,10 @@ public final class MessagePushRequestProto {
       }
       MessagePushRequest other = (MessagePushRequest) obj;
 
-      if (!getFromUid()
-          .equals(other.getFromUid())) return false;
-      if (!getToUid()
-          .equals(other.getToUid())) return false;
+      if (!getSenderId()
+          .equals(other.getSenderId())) return false;
+      if (!getReceiverId()
+          .equals(other.getReceiverId())) return false;
       if (chatType_ != other.chatType_) return false;
       if (getGroupId()
           != other.getGroupId()) return false;
@@ -524,6 +556,8 @@ public final class MessagePushRequestProto {
           .equals(other.getContent())) return false;
       if (!getFilePath()
           .equals(other.getFilePath())) return false;
+      if (getMessageId()
+          != other.getMessageId()) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -535,10 +569,10 @@ public final class MessagePushRequestProto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + FROM_UID_FIELD_NUMBER;
-      hash = (53 * hash) + getFromUid().hashCode();
-      hash = (37 * hash) + TO_UID_FIELD_NUMBER;
-      hash = (53 * hash) + getToUid().hashCode();
+      hash = (37 * hash) + SENDERID_FIELD_NUMBER;
+      hash = (53 * hash) + getSenderId().hashCode();
+      hash = (37 * hash) + RECEIVERID_FIELD_NUMBER;
+      hash = (53 * hash) + getReceiverId().hashCode();
       hash = (37 * hash) + CHAT_TYPE_FIELD_NUMBER;
       hash = (53 * hash) + chatType_;
       hash = (37 * hash) + GROUP_ID_FIELD_NUMBER;
@@ -552,6 +586,9 @@ public final class MessagePushRequestProto {
       hash = (53 * hash) + getContent().hashCode();
       hash = (37 * hash) + FILE_PATH_FIELD_NUMBER;
       hash = (53 * hash) + getFilePath().hashCode();
+      hash = (37 * hash) + MESSAGE_ID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getMessageId());
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -683,14 +720,15 @@ public final class MessagePushRequestProto {
       public Builder clear() {
         super.clear();
         bitField0_ = 0;
-        fromUid_ = "";
-        toUid_ = "";
+        senderId_ = "";
+        receiverId_ = "";
         chatType_ = 0;
         groupId_ = 0;
         timestamp_ = 0L;
         mediaType_ = 0;
         content_ = "";
         filePath_ = "";
+        messageId_ = 0L;
         return this;
       }
 
@@ -725,10 +763,10 @@ public final class MessagePushRequestProto {
       private void buildPartial0(MessagePushRequest result) {
         int from_bitField0_ = bitField0_;
         if (((from_bitField0_ & 0x00000001) != 0)) {
-          result.fromUid_ = fromUid_;
+          result.senderId_ = senderId_;
         }
         if (((from_bitField0_ & 0x00000002) != 0)) {
-          result.toUid_ = toUid_;
+          result.receiverId_ = receiverId_;
         }
         if (((from_bitField0_ & 0x00000004) != 0)) {
           result.chatType_ = chatType_;
@@ -747,6 +785,9 @@ public final class MessagePushRequestProto {
         }
         if (((from_bitField0_ & 0x00000080) != 0)) {
           result.filePath_ = filePath_;
+        }
+        if (((from_bitField0_ & 0x00000100) != 0)) {
+          result.messageId_ = messageId_;
         }
       }
 
@@ -794,13 +835,13 @@ public final class MessagePushRequestProto {
 
       public Builder mergeFrom(MessagePushRequest other) {
         if (other == MessagePushRequest.getDefaultInstance()) return this;
-        if (!other.getFromUid().isEmpty()) {
-          fromUid_ = other.fromUid_;
+        if (!other.getSenderId().isEmpty()) {
+          senderId_ = other.senderId_;
           bitField0_ |= 0x00000001;
           onChanged();
         }
-        if (!other.getToUid().isEmpty()) {
-          toUid_ = other.toUid_;
+        if (!other.getReceiverId().isEmpty()) {
+          receiverId_ = other.receiverId_;
           bitField0_ |= 0x00000002;
           onChanged();
         }
@@ -825,6 +866,9 @@ public final class MessagePushRequestProto {
           filePath_ = other.filePath_;
           bitField0_ |= 0x00000080;
           onChanged();
+        }
+        if (other.getMessageId() != 0L) {
+          setMessageId(other.getMessageId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
@@ -853,12 +897,12 @@ public final class MessagePushRequestProto {
                 done = true;
                 break;
               case 10: {
-                fromUid_ = input.readStringRequireUtf8();
+                senderId_ = input.readStringRequireUtf8();
                 bitField0_ |= 0x00000001;
                 break;
               } // case 10
               case 18: {
-                toUid_ = input.readStringRequireUtf8();
+                receiverId_ = input.readStringRequireUtf8();
                 bitField0_ |= 0x00000002;
                 break;
               } // case 18
@@ -892,6 +936,11 @@ public final class MessagePushRequestProto {
                 bitField0_ |= 0x00000080;
                 break;
               } // case 66
+              case 72: {
+                messageId_ = input.readInt64();
+                bitField0_ |= 0x00000100;
+                break;
+              } // case 72
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -909,94 +958,94 @@ public final class MessagePushRequestProto {
       }
       private int bitField0_;
 
-      private Object fromUid_ = "";
+      private Object senderId_ = "";
       /**
-       * <code>string from_uid = 1;</code>
-       * @return The fromUid.
+       * <code>string senderId = 1;</code>
+       * @return The senderId.
        */
-      public String getFromUid() {
-        Object ref = fromUid_;
+      public String getSenderId() {
+        Object ref = senderId_;
         if (!(ref instanceof String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           String s = bs.toStringUtf8();
-          fromUid_ = s;
+          senderId_ = s;
           return s;
         } else {
           return (String) ref;
         }
       }
       /**
-       * <code>string from_uid = 1;</code>
-       * @return The bytes for fromUid.
+       * <code>string senderId = 1;</code>
+       * @return The bytes for senderId.
        */
       public com.google.protobuf.ByteString
-          getFromUidBytes() {
-        Object ref = fromUid_;
+          getSenderIdBytes() {
+        Object ref = senderId_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (String) ref);
-          fromUid_ = b;
+          senderId_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>string from_uid = 1;</code>
-       * @param value The fromUid to set.
+       * <code>string senderId = 1;</code>
+       * @param value The senderId to set.
        * @return This builder for chaining.
        */
-      public Builder setFromUid(
+      public Builder setSenderId(
           String value) {
         if (value == null) { throw new NullPointerException(); }
-        fromUid_ = value;
+        senderId_ = value;
         bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
       /**
-       * <code>string from_uid = 1;</code>
+       * <code>string senderId = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearFromUid() {
-        fromUid_ = getDefaultInstance().getFromUid();
+      public Builder clearSenderId() {
+        senderId_ = getDefaultInstance().getSenderId();
         bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
       /**
-       * <code>string from_uid = 1;</code>
-       * @param value The bytes for fromUid to set.
+       * <code>string senderId = 1;</code>
+       * @param value The bytes for senderId to set.
        * @return This builder for chaining.
        */
-      public Builder setFromUidBytes(
+      public Builder setSenderIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
-        fromUid_ = value;
+        senderId_ = value;
         bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
 
-      private Object toUid_ = "";
+      private Object receiverId_ = "";
       /**
        * <pre>
        * 单聊存放用户id, 群聊存放群id
        * </pre>
        *
-       * <code>string to_uid = 2;</code>
-       * @return The toUid.
+       * <code>string receiverId = 2;</code>
+       * @return The receiverId.
        */
-      public String getToUid() {
-        Object ref = toUid_;
+      public String getReceiverId() {
+        Object ref = receiverId_;
         if (!(ref instanceof String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           String s = bs.toStringUtf8();
-          toUid_ = s;
+          receiverId_ = s;
           return s;
         } else {
           return (String) ref;
@@ -1007,17 +1056,17 @@ public final class MessagePushRequestProto {
        * 单聊存放用户id, 群聊存放群id
        * </pre>
        *
-       * <code>string to_uid = 2;</code>
-       * @return The bytes for toUid.
+       * <code>string receiverId = 2;</code>
+       * @return The bytes for receiverId.
        */
       public com.google.protobuf.ByteString
-          getToUidBytes() {
-        Object ref = toUid_;
+          getReceiverIdBytes() {
+        Object ref = receiverId_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (String) ref);
-          toUid_ = b;
+          receiverId_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
@@ -1028,14 +1077,14 @@ public final class MessagePushRequestProto {
        * 单聊存放用户id, 群聊存放群id
        * </pre>
        *
-       * <code>string to_uid = 2;</code>
-       * @param value The toUid to set.
+       * <code>string receiverId = 2;</code>
+       * @param value The receiverId to set.
        * @return This builder for chaining.
        */
-      public Builder setToUid(
+      public Builder setReceiverId(
           String value) {
         if (value == null) { throw new NullPointerException(); }
-        toUid_ = value;
+        receiverId_ = value;
         bitField0_ |= 0x00000002;
         onChanged();
         return this;
@@ -1045,11 +1094,11 @@ public final class MessagePushRequestProto {
        * 单聊存放用户id, 群聊存放群id
        * </pre>
        *
-       * <code>string to_uid = 2;</code>
+       * <code>string receiverId = 2;</code>
        * @return This builder for chaining.
        */
-      public Builder clearToUid() {
-        toUid_ = getDefaultInstance().getToUid();
+      public Builder clearReceiverId() {
+        receiverId_ = getDefaultInstance().getReceiverId();
         bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
@@ -1059,15 +1108,15 @@ public final class MessagePushRequestProto {
        * 单聊存放用户id, 群聊存放群id
        * </pre>
        *
-       * <code>string to_uid = 2;</code>
-       * @param value The bytes for toUid to set.
+       * <code>string receiverId = 2;</code>
+       * @param value The bytes for receiverId to set.
        * @return This builder for chaining.
        */
-      public Builder setToUidBytes(
+      public Builder setReceiverIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
-        toUid_ = value;
+        receiverId_ = value;
         bitField0_ |= 0x00000002;
         onChanged();
         return this;
@@ -1446,6 +1495,50 @@ public final class MessagePushRequestProto {
         onChanged();
         return this;
       }
+
+      private long messageId_ ;
+      /**
+       * <pre>
+       * 消息id
+       * </pre>
+       *
+       * <code>int64 message_id = 9;</code>
+       * @return The messageId.
+       */
+      @Override
+      public long getMessageId() {
+        return messageId_;
+      }
+      /**
+       * <pre>
+       * 消息id
+       * </pre>
+       *
+       * <code>int64 message_id = 9;</code>
+       * @param value The messageId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMessageId(long value) {
+
+        messageId_ = value;
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 消息id
+       * </pre>
+       *
+       * <code>int64 message_id = 9;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMessageId() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        messageId_ = 0L;
+        onChanged();
+        return this;
+      }
       @Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1525,14 +1618,14 @@ public final class MessagePushRequestProto {
   static {
     String[] descriptorData = {
       "\n\030MessagePushRequest.proto\022\002im\032\016ChatType" +
-      ".proto\032\017MediaType.proto\"\303\001\n\022MessagePushR" +
-      "equest\022\020\n\010from_uid\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\t" +
-      "\022\037\n\tchat_type\030\003 \001(\0162\014.im.ChatType\022\020\n\010gro" +
-      "up_id\030\004 \001(\005\022\021\n\ttimestamp\030\005 \001(\003\022!\n\nmedia_" +
-      "type\030\006 \001(\0162\r.im.MediaType\022\017\n\007content\030\007 \001" +
-      "(\t\022\021\n\tfile_path\030\010 \001(\tB2\n\027com.hiraeth.im." +
-      "protocolB\027MessagePushRequestProtob\006proto" +
-      "3"
+      ".proto\032\017MediaType.proto\"\333\001\n\022MessagePushR" +
+      "equest\022\020\n\010senderId\030\001 \001(\t\022\022\n\nreceiverId\030\002" +
+      " \001(\t\022\037\n\tchat_type\030\003 \001(\0162\014.im.ChatType\022\020\n" +
+      "\010group_id\030\004 \001(\005\022\021\n\ttimestamp\030\005 \001(\003\022!\n\nme" +
+      "dia_type\030\006 \001(\0162\r.im.MediaType\022\017\n\007content" +
+      "\030\007 \001(\t\022\021\n\tfile_path\030\010 \001(\t\022\022\n\nmessage_id\030" +
+      "\t \001(\003B2\n\027com.hiraeth.im.protocolB\027Messag" +
+      "ePushRequestProtob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -1545,7 +1638,7 @@ public final class MessagePushRequestProto {
     internal_static_im_MessagePushRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_im_MessagePushRequest_descriptor,
-        new String[] { "FromUid", "ToUid", "ChatType", "GroupId", "Timestamp", "MediaType", "Content", "FilePath", });
+        new String[] { "SenderId", "ReceiverId", "ChatType", "GroupId", "Timestamp", "MediaType", "Content", "FilePath", "MessageId", });
     ChatTypeEnum.getDescriptor();
     MediaTypeEnum.getDescriptor();
   }
