@@ -7,6 +7,7 @@ import com.hiraeth.im.common.MQConstant;
 import com.hiraeth.im.common.entity.Request;
 import com.hiraeth.im.common.entity.Session;
 import com.hiraeth.im.common.entity.mq.MQForwardMessage;
+import com.hiraeth.im.common.util.StringUtil;
 import com.hiraeth.im.dispatcher.GatewayInstanceManager;
 import com.hiraeth.im.mq.MQBaseListener;
 import com.hiraeth.im.protocol.*;
@@ -16,6 +17,7 @@ import org.apache.rocketmq.spring.annotation.ConsumeMode;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.springframework.stereotype.Service;
 
+import static com.hiraeth.im.common.Constant.OFFLINE_MSG;
 import static com.hiraeth.im.common.Constant.SESSIONS_KEY_PREFIX;
 
 /**
@@ -48,9 +50,13 @@ public class ForwardMessageConsumer extends MQBaseListener<MQForwardMessage> {
         }
 
         Session session = redisService.getObj(SESSIONS_KEY_PREFIX + message.getReceiveId(), Session.class);
-        if (session == null || session.getGatewayChannelId() == null || "".equals(session.getGatewayChannelId())) {
-            log.error("forward message failed because receiver's session not found, may be disconnected.Receiver id: {}, msg: {}, session: {}",
+        if (session == null || StringUtil.isEmpty(session.getGatewayChannelId())) {
+            log.info("forward message failed because receiver's session not found, may be disconnected.Receiver id: {}, msg: {}, session: {}",
                     message.getReceiveId(), JSON.toJSONString(message), JSON.toJSONString(session));
+
+            // TODO: 2023/12/6 离线消息存储: 将消息存储到系统, 待用户上线后可通过主动推送或主动拉取来获得最新消息
+            redisService.zsadd(OFFLINE_MSG + message.getReceiveId(), message, System.currentTimeMillis());
+
             return;
         }
         SocketChannel gatewayInstance = gatewayInstanceManager.getGatewayInstance(session.getGatewayChannelId());

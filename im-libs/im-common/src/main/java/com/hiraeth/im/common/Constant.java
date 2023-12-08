@@ -11,4 +11,5 @@ public class Constant {
     public static final byte[] DELIMITER = "$_".getBytes();
 
     public static final String SESSIONS_KEY_PREFIX = "SESSIONS:";
+    public static final String OFFLINE_MSG = "OFFLINE_MSG:";
 }

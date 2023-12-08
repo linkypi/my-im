@@ -5,18 +5,20 @@ import com.hiraeth.im.common.Constant;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author leo
@@ -60,6 +62,8 @@ public class GatewayTcpServer {
                             ByteBuf delimiter = Unpooled.copiedBuffer(Constant.DELIMITER);
                             socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, delimiter));
                             socketChannel.pipeline().addLast(gatewayTcpHandler);
+                            socketChannel.pipeline().addLast(new IdleStateHandler(30,0,30, TimeUnit.SECONDS));
+                            socketChannel.pipeline().addLast("", new IdleHandler());
                         }
                     });
             ChannelFuture channelFuture = server.bind(PORT).sync();
@@ -70,6 +74,20 @@ public class GatewayTcpServer {
         }finally {
             eventLoopGroup.shutdownGracefully();
             ioEventLoopGroup.shutdownGracefully();
+        }
+    }
+
+    static class IdleHandler extends ChannelDuplexHandler {
+        @Override
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+            if(evt instanceof IdleStateEvent){
+                IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+                if(idleStateEvent.state() == IdleState.READER_IDLE){
+                    // 长时间没有收到客户端消息, 可以断开连接
+                    ctx.channel().close();
+                }
+            }
+
         }
     }
 }

@@ -13,6 +13,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -74,6 +75,8 @@ public class DispatcherInstanceHandler extends ChannelInboundHandlerAdapter {
         }catch (Exception ex){
             log.error("handle message occur error, message type: {}, request type: {}, sequence: {}",
                    baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence(), ex);
+        }finally {
+            ReferenceCountUtil.release(msg);
         }
     }
 

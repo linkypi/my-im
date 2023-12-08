@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,19 +27,25 @@ public class IMClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf buffer = (ByteBuf)msg;
-        BaseMessage baseMessage = new BaseMessage(buffer);
+        try {
+            ByteBuf buffer = (ByteBuf) msg;
+            BaseMessage baseMessage = new BaseMessage(buffer);
 
-        log.info("receive msg, message type: {}, request type: {}, sequence: {}",
-                baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
+            log.info("receive msg, message type: {}, request type: {}, sequence: {}",
+                    baseMessage.getMessageType(), baseMessage.getRequestType(), baseMessage.getSequence());
 
-        if(MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()){
-            RequestHandler instance = RequestHandler.getInstance();
-            instance.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
-        }
-        if(MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()){
-            ResponseHandler instance = ResponseHandler.getInstance();
-            instance.handle(baseMessage.toResponse());
+            if (MessageTypeEnum.MessageType.REQUEST == baseMessage.getMessageType()) {
+                RequestHandler instance = RequestHandler.getInstance();
+                instance.handle(baseMessage.toRequest(), (SocketChannel) ctx.channel());
+            }
+            if (MessageTypeEnum.MessageType.RESPONSE == baseMessage.getMessageType()) {
+                ResponseHandler instance = ResponseHandler.getInstance();
+                instance.handle(baseMessage.toResponse());
+            }
+        }catch (Exception ex){
+            log.error("read message occur error", ex);
+        }finally {
+            ReferenceCountUtil.release(msg);
         }
     }
 

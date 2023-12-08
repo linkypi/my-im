@@ -22,6 +22,7 @@
         <module>im-dispatcher</module>
         <module>im-libs</module>
         <module>im-business</module>
+        <module>im-million-connections-test</module>
     </modules>
 
     <dependencies>
