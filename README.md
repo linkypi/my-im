@@ -1,6 +1,6 @@
 ## IM 消息系统
 
-![flowchart-IM Arch](README.assets/flowchart-IM Arch.png)
+![flowchart-IM-Arch](README.assets/flowchart-IM-Arch.png)
 
 ### 待处理
 1. 分发系统掉线后, gateway接入系统如何感知并重连. 同样, gateway接入系统掉线后, App端如何处理?
